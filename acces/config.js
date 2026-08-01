@@ -4,8 +4,10 @@
 window.ACCES_CONFIG = {
   WEB_APP_URL: "COLLER_ICI_URL_APPS_SCRIPT",
   SECRET_KEY: "parfaite-jean-2026",
-  // URL publique du site (Render)
+  // URL publique du site (billets / QR)
   SITE_BASE_URL: "https://mon-mariage-f7dv.onrender.com",
+  // API invités (Render) — utilisée aussi par l’admin Vercel
+  API_BASE_URL: "https://mon-mariage-f7dv.onrender.com",
   // Tables : langages & frameworks (Parfaite & Jean)
   TABLE_NAMES: [
     "Python",

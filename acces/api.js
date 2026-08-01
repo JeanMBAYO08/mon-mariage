@@ -2,12 +2,23 @@
   const cfg = window.ACCES_CONFIG || {};
 
   function siteBase() {
-    // Toujours l’origine courante si on est sur le site (évite l’IP interne Render)
+    // Billets / QR : préfère l’URL publique configurée (Render)
+    if (cfg.SITE_BASE_URL) return String(cfg.SITE_BASE_URL).replace(/\/$/, "");
     if (window.location && /^https?:$/.test(window.location.protocol)) {
       const host = window.location.hostname || "";
       if (host && host !== "0.0.0.0") {
         return window.location.origin;
       }
+    }
+    return window.location.origin;
+  }
+
+  function apiBase() {
+    // Liste / RSVP : Render central, même depuis l’admin Vercel
+    if (cfg.API_BASE_URL) return String(cfg.API_BASE_URL).replace(/\/$/, "");
+    const host = (window.location && window.location.hostname) || "";
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+      return window.location.origin;
     }
     if (cfg.SITE_BASE_URL) return String(cfg.SITE_BASE_URL).replace(/\/$/, "");
     return window.location.origin;
@@ -18,11 +29,11 @@
   }
 
   function localApiAvailable() {
-    return Boolean(window.location.origin && window.location.protocol.startsWith("http"));
+    return Boolean(apiBase());
   }
 
   async function localRequest(path, options = {}) {
-    const res = await fetch(`${window.location.origin}${path}`, {
+    const res = await fetch(`${apiBase()}${path}`, {
       headers: { "Content-Type": "application/json", ...(options.headers || {}) },
       ...options,
     });
