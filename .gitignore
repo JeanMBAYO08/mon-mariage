@@ -5,5 +5,3 @@ node_modules/
 .vercel
 acces/certs/
 *.pem
-# Source video trop lourde (le site utilise photos/hero-web.mp4)
-photos/hero.mp4
