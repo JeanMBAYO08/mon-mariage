@@ -21,8 +21,9 @@
     <section class="panel">
       <h2 class="panel-title">Récupérer depuis WhatsApp</h2>
       <p class="hint">
-        Colle ici le(s) message(s) de confirmation reçus sur WhatsApp
-        (ceux envoyés sans apparaître dans la liste). Un ou plusieurs messages d’affilée.
+        Colle le(s) message(s) WhatsApp complets, y compris les lignes
+        <strong>Code QR</strong> et <strong>Billet</strong> si elles sont présentes.
+        Le code est récupéré automatiquement (ou un nouveau QR est créé).
       </p>
       <form class="admin-form" id="wa-import-form">
         <label>
@@ -30,7 +31,7 @@
           <textarea
             id="wa-import-text"
             name="messages"
-            rows="10"
+            rows="12"
             required
             placeholder="Bonjour Parfaite &amp; Jean,
 
@@ -39,9 +40,12 @@ Je confirme ma présence à votre mariage.
 Nom : Prénom Nom
 Événement : Mariage (invitation complète)
 Type d’invitation : Couple
-WhatsApp : +243…"
+WhatsApp : +243…
+Code QR : PJ-XXXXXX
+Billet : https://mon-mariage-rho.vercel.app/billet.html?code=PJ-XXXXXX"
           ></textarea>
         </label>
+        <div class="wa-preview" id="wa-import-preview" hidden></div>
         <button class="btn btn-gold" type="submit">Importer dans la liste</button>
         <p class="form-msg" id="wa-import-msg" role="status"></p>
       </form>

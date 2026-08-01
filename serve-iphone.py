@@ -242,8 +242,15 @@ def upsert_rsvp(payload: dict) -> dict:
             save_invites(invites)
             return {"ok": True, "updated": True, "guest": guest_public(guest)}
 
+    preferred = str(payload.get("code") or "").strip().upper().replace(" ", "")
+    existing_codes = {str(g.get("code", "")).upper() for g in invites}
+    code = (
+        preferred
+        if re.fullmatch(r"PJ-[A-Z0-9]{6}", preferred) and preferred not in existing_codes
+        else generate_code(invites)
+    )
     guest = {
-        "code": generate_code(invites),
+        "code": code,
         "nom": nom,
         "type": invite_type,
         "personnes": personnes,

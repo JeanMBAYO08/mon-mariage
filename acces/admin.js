@@ -379,6 +379,45 @@
     return match ? String(match[1] || "").trim() : "";
   }
 
+  function normalizeInviteCode(raw) {
+    const code = String(raw || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "");
+    return /^PJ-[A-Z0-9]{6}$/.test(code) ? code : "";
+  }
+
+  function extractCodeFromChunk(chunk) {
+    const labeled = fieldFromText(
+      chunk,
+      "Code\\s*QR|CodeQR|QR\\s*code|Code\\s*billet"
+    );
+    let code = normalizeInviteCode(labeled);
+    if (code) return code;
+
+    // Parfois le label capture du texte autour : isoler PJ-XXXXXX
+    const labeledMatch = String(labeled || "").match(/\b(PJ-[A-Za-z0-9]{6})\b/i);
+    code = normalizeInviteCode(labeledMatch?.[1]);
+    if (code) return code;
+
+    const billet = fieldFromText(chunk, "Billet|Ticket|Lien");
+    if (billet) {
+      try {
+        const url = new URL(billet.trim().split(/\s+/)[0]);
+        code = normalizeInviteCode(url.searchParams.get("code"));
+        if (code) return code;
+      } catch {
+        /* ignore */
+      }
+      const fromQuery = billet.match(/[?&]code=([A-Za-z0-9-]+)/i);
+      code = normalizeInviteCode(fromQuery?.[1]);
+      if (code) return code;
+    }
+
+    const anywhere = String(chunk).match(/\b(PJ-[A-Za-z0-9]{6})\b/i);
+    return normalizeInviteCode(anywhere?.[1]);
+  }
+
   function parseInviteType(raw) {
     const value = String(raw || "").toLowerCase();
     const countMatch = value.match(/(\d+)\s*personnes?/);
@@ -423,21 +462,45 @@
         const whatsapp = formatWhatsappIntl(
           fieldFromText(chunk, "WhatsApp") || fieldFromText(chunk, "Téléphone|Telephone")
         );
-        const code = (fieldFromText(chunk, "Code QR") || "")
-          .toUpperCase()
-          .replace(/\s+/g, "");
+        const code = extractCodeFromChunk(chunk);
         return {
           nom,
           evenement,
           type,
           personnes,
           whatsapp,
-          code: /^PJ-[A-Z0-9]{6}$/.test(code) ? code : "",
+          code,
           notes: "Récupéré depuis WhatsApp",
           statut: "confirme",
         };
       })
       .filter(Boolean);
+  }
+
+  const waPreview = document.getElementById("wa-import-preview");
+
+  function renderWaPreview(parsed) {
+    if (!waPreview) return;
+    if (!parsed.length) {
+      waPreview.hidden = true;
+      waPreview.innerHTML = "";
+      return;
+    }
+    waPreview.hidden = false;
+    waPreview.innerHTML = `<p class="wa-preview-title">${parsed.length} confirmation(s) détectée(s)</p><ul>${parsed
+      .map((g) => {
+        const codeLabel = g.code || "nouveau QR auto";
+        return `<li><strong>${g.nom}</strong> · ${codeLabel} · ${g.whatsapp || "sans WhatsApp"} · ${
+          g.evenement === "civil" ? "civil" : "soirée"
+        }</li>`;
+      })
+      .join("")}</ul>`;
+  }
+
+  if (waText) {
+    waText.addEventListener("input", () => {
+      renderWaPreview(parseWhatsappMessages(waText.value || ""));
+    });
   }
 
   if (waForm) {
@@ -446,6 +509,7 @@
       if (!waMsg) return;
       waMsg.classList.remove("is-error");
       const parsed = parseWhatsappMessages(waText?.value || "");
+      renderWaPreview(parsed);
       if (!parsed.length) {
         waMsg.classList.add("is-error");
         waMsg.textContent =
@@ -460,21 +524,33 @@
       for (const guest of parsed) {
         try {
           if (!guest.whatsapp) throw new Error("WhatsApp manquant");
-          const result = await request({
+          const payload = {
             action: "add",
-            ...guest,
-          });
+            nom: guest.nom,
+            type: guest.type,
+            personnes: guest.personnes,
+            whatsapp: guest.whatsapp,
+            notes: guest.notes,
+            evenement: guest.evenement,
+            statut: guest.statut,
+          };
+          if (guest.code) payload.code = guest.code;
+          const result = await request(payload);
           if (!result?.ok) throw new Error(result?.error || "Échec");
-          ok.push(`${guest.nom} (${result.guest?.code || "ok"})`);
+          const savedCode = result.guest?.code || guest.code || "?";
+          ok.push(`${guest.nom} → ${savedCode}`);
         } catch (err) {
           fail.push(`${guest.nom}: ${err.message || "erreur"}`);
         }
       }
 
       await loadList();
-      if (ok.length && waText) waText.value = "";
+      if (ok.length && waText) {
+        waText.value = "";
+        renderWaPreview([]);
+      }
       const parts = [];
-      if (ok.length) parts.push(`${ok.length} ajouté(s) : ${ok.join(" · ")}`);
+      if (ok.length) parts.push(`${ok.length} ajouté(s) avec QR : ${ok.join(" · ")}`);
       if (fail.length) parts.push(`${fail.length} échec(s) : ${fail.join(" · ")}`);
       waMsg.classList.toggle("is-error", ok.length === 0);
       waMsg.textContent = parts.join(" | ");
