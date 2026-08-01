@@ -114,8 +114,9 @@
 
   async function request(params = {}) {
     const action = String(params.action || "").toLowerCase();
+    const mutating = ["rsvp", "add", "update", "table", "delete", "checkin"].includes(action);
 
-    // API locale prioritaire (fonctionne tout de suite avec serve-iphone.py)
+    // API Vercel / locale prioritaire
     if (localApiAvailable()) {
       try {
         if (action === "ping") return localRequest("/api/ping");
@@ -164,8 +165,9 @@
           });
         }
       } catch (err) {
-        // Si l’API locale échoue, on tente Apps Script
         console.warn("API locale:", err);
+        // Ne jamais masquer un échec RSVP/admin par un Apps Script fantôme
+        if (mutating) throw err;
       }
     }
 
