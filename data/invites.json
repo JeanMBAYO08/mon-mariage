@@ -26,19 +26,6 @@
     "evenement": "soiree"
   },
   {
-    "code": "PJ-G4LJGY",
-    "nom": "Je teste",
-    "type": "singleton",
-    "personnes": 1,
-    "table": "",
-    "whatsapp": "243856705834",
-    "statut": "confirme",
-    "date_entree": "",
-    "notes": "RSVP site",
-    "created_at": "2026-08-01T13:46:36",
-    "evenement": "soiree"
-  },
-  {
     "code": "PJ-NTQAMZ",
     "nom": "JR Kalonji",
     "type": "couple",
