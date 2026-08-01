@@ -89,6 +89,9 @@ def public_base_url(ip: str, port: int, scheme: str) -> str:
 
 
 def update_site_base(ip: str, port: int, scheme: str) -> None:
+    # Ne réécrit SITE_BASE_URL qu’en prod Render (évite d’écraser l’URL publique en local)
+    if not (os.environ.get("RENDER") or os.environ.get("RENDER_EXTERNAL_URL")):
+        return
     if not CONFIG.exists():
         return
     content = CONFIG.read_text(encoding="utf-8")

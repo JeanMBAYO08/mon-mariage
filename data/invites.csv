@@ -1,3 +1,3 @@
-code,nom,type,personnes,table,whatsapp,statut,date_entree,notes
-PJ-AWLPQN,Jean MBAYO,singleton,1,Rust,243821377353,confirme,,RSVP site
-PJ-HKR39C,Man MBAYO,singleton,1,Swift,243856705834,confirme,,RSVP site
+code,nom,type,personnes,table,whatsapp,statut,date_entree,evenement,notes
+PJ-AWLPQN,Jean MBAYO,singleton,1,Rust,243821377353,confirme,,soiree,RSVP site
+PJ-HKR39C,Man MBAYO,singleton,1,Swift,243856705834,confirme,,soiree,RSVP site

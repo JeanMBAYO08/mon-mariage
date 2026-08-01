@@ -2,24 +2,27 @@
   const cfg = window.ACCES_CONFIG || {};
 
   function siteBase() {
-    // Billets / QR : préfère l’URL publique configurée (Render)
+    const host = (window.location && window.location.hostname) || "";
+    // En local : billets sur le même serveur
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+      return window.location.origin;
+    }
+    // Prod : URL publique configurée (Render)
     if (cfg.SITE_BASE_URL) return String(cfg.SITE_BASE_URL).replace(/\/$/, "");
-    if (window.location && /^https?:$/.test(window.location.protocol)) {
-      const host = window.location.hostname || "";
-      if (host && host !== "0.0.0.0") {
-        return window.location.origin;
-      }
+    if (window.location && /^https?:$/.test(window.location.protocol) && host && host !== "0.0.0.0") {
+      return window.location.origin;
     }
     return window.location.origin;
   }
 
   function apiBase() {
-    // Liste / RSVP : Render central, même depuis l’admin Vercel
-    if (cfg.API_BASE_URL) return String(cfg.API_BASE_URL).replace(/\/$/, "");
     const host = (window.location && window.location.hostname) || "";
+    // En local : toujours l’API du serveur local
     if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
       return window.location.origin;
     }
+    // Vercel / autres : API Render centrale
+    if (cfg.API_BASE_URL) return String(cfg.API_BASE_URL).replace(/\/$/, "");
     if (cfg.SITE_BASE_URL) return String(cfg.SITE_BASE_URL).replace(/\/$/, "");
     return window.location.origin;
   }
