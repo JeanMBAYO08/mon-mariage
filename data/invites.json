@@ -1,31 +1,5 @@
 [
   {
-    "code": "PJ-AWLPQN",
-    "nom": "Jean MBAYO",
-    "type": "singleton",
-    "personnes": 1,
-    "statut": "confirme",
-    "date_entree": "",
-    "notes": "RSVP site",
-    "created_at": "2026-07-30T21:40:14",
-    "table": "Rust",
-    "whatsapp": "243821377353",
-    "evenement": "soiree"
-  },
-  {
-    "code": "PJ-HKR39C",
-    "nom": "Man MBAYO",
-    "type": "singleton",
-    "personnes": 1,
-    "table": "Swift",
-    "whatsapp": "243856705834",
-    "statut": "confirme",
-    "date_entree": "",
-    "notes": "RSVP site",
-    "created_at": "2026-07-30T22:17:39",
-    "evenement": "soiree"
-  },
-  {
     "code": "PJ-NTQAMZ",
     "nom": "JR Kalonji",
     "type": "couple",
