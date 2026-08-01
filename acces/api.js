@@ -150,6 +150,12 @@
             }),
           });
         }
+        if (action === "delete") {
+          return localRequest("/api/delete", {
+            method: "POST",
+            body: JSON.stringify({ code: params.code }),
+          });
+        }
       } catch (err) {
         // Si l’API locale échoue, on tente Apps Script
         console.warn("API locale:", err);
@@ -281,12 +287,24 @@
     });
   }
 
+  function rsvpDeadline() {
+    const raw = cfg.RSVP_DEADLINE || "2026-08-15T23:59:59+01:00";
+    const date = new Date(raw);
+    return Number.isNaN(date.getTime()) ? new Date("2026-08-15T23:59:59+01:00") : date;
+  }
+
+  function isRsvpOpen(now = new Date()) {
+    return now.getTime() <= rsvpDeadline().getTime();
+  }
+
   window.AccesAPI = {
     cfg,
     siteBase,
     ticketUrl,
     normalizeEvenement,
     evenementLabel,
+    rsvpDeadline,
+    isRsvpOpen,
     request,
     extractCode,
     renderQrWithLogo,

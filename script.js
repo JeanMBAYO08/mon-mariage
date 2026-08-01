@@ -172,6 +172,19 @@
           : "soiree");
     const isCivil = evenement === "civil";
     const submitBtn = form.querySelector('button[type="submit"]');
+    const rsvpOpen =
+      window.AccesAPI && typeof window.AccesAPI.isRsvpOpen === "function"
+        ? window.AccesAPI.isRsvpOpen()
+        : new Date() <= new Date("2026-08-15T23:59:59+01:00");
+
+    if (!rsvpOpen) {
+      form.querySelectorAll("input, select, button").forEach((el) => {
+        el.disabled = true;
+      });
+      status.textContent =
+        "Les confirmations sont closes depuis le 15 août 2026. Merci de votre compréhension.";
+      status.classList.add("is-error");
+    }
     const attendanceInputs = form.querySelectorAll('input[name="attendance"]');
     const inviteType = document.getElementById("invite-type");
     const collectifField = document.getElementById("collectif-field");
@@ -247,6 +260,17 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       status.classList.remove("is-error");
+
+      if (
+        window.AccesAPI && typeof window.AccesAPI.isRsvpOpen === "function"
+          ? !window.AccesAPI.isRsvpOpen()
+          : new Date() > new Date("2026-08-15T23:59:59+01:00")
+      ) {
+        status.textContent =
+          "Les confirmations sont closes depuis le 15 août 2026. Merci de votre compréhension.";
+        status.classList.add("is-error");
+        return;
+      }
 
       const data = new FormData(form);
       const name = String(data.get("name") || "").trim();

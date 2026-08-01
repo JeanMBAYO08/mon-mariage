@@ -1,11 +1,12 @@
 import {
   loadInvites,
-  saveInvites,
   upsertGuest,
   updateGuest,
+  deleteGuest,
   validateCode,
   checkinCode,
   toCsv,
+  isRsvpOpen,
 } from "../lib/invites.js";
 
 function cors(res) {
@@ -68,6 +69,13 @@ export default async function handler(req, res) {
     }
 
     if (path === "rsvp" && req.method === "POST") {
+      if (!isRsvpOpen()) {
+        return res.status(403).json({
+          ok: false,
+          closed: true,
+          error: "Les confirmations sont closes depuis le 15 août 2026.",
+        });
+      }
       return res.status(200).json(await upsertGuest(bodyOf(req), { defaultStatut: "confirme" }));
     }
 
@@ -77,6 +85,10 @@ export default async function handler(req, res) {
 
     if ((path === "update" || path === "table") && req.method === "POST") {
       return res.status(200).json(await updateGuest(bodyOf(req)));
+    }
+
+    if (path === "delete" && req.method === "POST") {
+      return res.status(200).json(await deleteGuest(bodyOf(req)));
     }
 
     // Compat: POST /api/rsvp etc. already handled; unknown

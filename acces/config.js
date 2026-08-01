@@ -8,6 +8,8 @@ window.ACCES_CONFIG = {
   SITE_BASE_URL: "https://mon-mariage-f7dv.onrender.com",
   // API invités (Render) — utilisée aussi par l’admin Vercel
   API_BASE_URL: "https://mon-mariage-f7dv.onrender.com",
+  // Fin des confirmations RSVP (inclus le 15 août 2026, Kinshasa)
+  RSVP_DEADLINE: "2026-08-15T23:59:59+01:00",
   // Tables : langages & frameworks (Parfaite & Jean)
   TABLE_NAMES: [
     "Python",

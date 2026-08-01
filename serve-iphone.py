@@ -275,6 +275,34 @@ def upsert_rsvp(payload: dict) -> dict:
     return {"ok": True, "created": True, "guest": guest_public(guest)}
 
 
+RSVP_DEADLINE = os.environ.get("RSVP_DEADLINE", "2026-08-15T23:59:59+01:00")
+
+
+def rsvp_open(now: datetime | None = None) -> bool:
+    current = now or datetime.now().astimezone()
+    try:
+        deadline = datetime.fromisoformat(RSVP_DEADLINE)
+    except Exception:
+        deadline = datetime.fromisoformat("2026-08-15T23:59:59+01:00")
+    if deadline.tzinfo is None:
+        deadline = deadline.replace(tzinfo=current.tzinfo)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=deadline.tzinfo)
+    return current <= deadline
+
+
+def delete_guest(payload: dict) -> dict:
+    code = str(payload.get("code") or "").strip().upper()
+    if not code:
+        return {"ok": False, "error": "Code requis"}
+    invites = load_invites()
+    kept = [g for g in invites if str(g.get("code", "")).upper() != code]
+    if len(kept) == len(invites):
+        return {"ok": False, "error": "Invité introuvable", "code": code}
+    save_invites(kept)
+    return {"ok": True, "deleted": True, "code": code}
+
+
 def update_guest(payload: dict) -> dict:
     code = str(payload.get("code") or "").strip().upper()
     if not code:
@@ -511,6 +539,15 @@ class Handler(SimpleHTTPRequestHandler):
 
         if path in ("/api/rsvp", "/api/add"):
             if path == "/api/rsvp":
+                if not rsvp_open():
+                    return self._json(
+                        {
+                            "ok": False,
+                            "error": "Les confirmations sont closes depuis le 15 août 2026.",
+                            "closed": True,
+                        },
+                        403,
+                    )
                 payload["statut"] = payload.get("statut") or "confirme"
             else:
                 payload["statut"] = payload.get("statut") or "invite"
@@ -518,6 +555,9 @@ class Handler(SimpleHTTPRequestHandler):
 
         if path in ("/api/update", "/api/table"):
             return self._json(update_guest(payload))
+
+        if path == "/api/delete":
+            return self._json(delete_guest(payload))
 
         if path == "/api/checkin":
             return self._json(checkin_code(payload.get("code", "")))

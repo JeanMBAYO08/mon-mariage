@@ -50,23 +50,16 @@
   syncCount();
   syncEvenementForm();
 
-  function domainOrder(name) {
-    const list = tableNames();
-    const idx = list.indexOf(name);
-    return idx >= 0 ? idx : 999;
-  }
-
   function sortGuests(guests) {
     return [...guests].sort((a, b) => {
-      const ta = String(a.table || "").trim();
-      const tb = String(b.table || "").trim();
-      const aEmpty = !ta;
-      const bEmpty = !tb;
-      if (aEmpty !== bEmpty) return aEmpty ? 1 : -1;
-      const orderDiff = domainOrder(ta) - domainOrder(tb);
-      if (orderDiff !== 0) return orderDiff;
-      if (ta !== tb) return ta.localeCompare(tb, "fr");
-      return String(a.nom || "").localeCompare(String(b.nom || ""), "fr");
+      const byName = String(a.nom || "").localeCompare(String(b.nom || ""), "fr", {
+        sensitivity: "base",
+      });
+      if (byName !== 0) return byName;
+      const ea = normalizeEvenement(a.evenement);
+      const eb = normalizeEvenement(b.evenement);
+      if (ea !== eb) return ea.localeCompare(eb, "fr");
+      return String(a.code || "").localeCompare(String(b.code || ""), "fr");
     });
   }
 
@@ -325,7 +318,28 @@
       shareAction.innerHTML = `${shareIconSvg()}<span>WhatsApp</span>`;
       shareAction.addEventListener("click", () => shareBtn.click());
 
-      actions.append(link, shareAction);
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "btn btn-danger-ghost";
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.addEventListener("click", async () => {
+        const ok = window.confirm(
+          `Supprimer la confirmation de ${guest.nom} (${guest.code}) ?\nCette action est définitive.`
+        );
+        if (!ok) return;
+        deleteBtn.disabled = true;
+        try {
+          const result = await request({ action: "delete", code: guest.code });
+          if (!result.ok) throw new Error(result.error || "Suppression impossible");
+          allGuests = allGuests.filter((g) => g.code !== guest.code);
+          paint();
+        } catch (err) {
+          window.alert(err.message || "Erreur lors de la suppression.");
+          deleteBtn.disabled = false;
+        }
+      });
+
+      actions.append(link, shareAction, deleteBtn);
       card.append(box, name, meta, code, tableRow, waRow, eventBadge, badge, tableBadge, actions);
       grid.appendChild(card);
 

@@ -484,6 +484,17 @@ select:focus {
   height: 0.95rem;
 }
 
+.btn-danger-ghost {
+  border-color: rgba(176, 74, 60, 0.45);
+  color: #e08a7d;
+  background: transparent;
+}
+
+.btn-danger-ghost:hover {
+  border-color: rgba(176, 74, 60, 0.75);
+  color: #f0a89d;
+}
+
 .btn-share-wa:hover {
   border-color: #25d366;
   color: #b7f0cb;
