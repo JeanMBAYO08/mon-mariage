@@ -3,11 +3,15 @@
 
   function siteBase() {
     const host = (window.location && window.location.hostname) || "";
-    // En local : billets sur le même serveur
-    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+    // Local / Vercel : même origine (billets cohérents avec le site ouvert)
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith(".local") ||
+      host.endsWith(".vercel.app")
+    ) {
       return window.location.origin;
     }
-    // Prod : URL publique configurée (Render)
     if (cfg.SITE_BASE_URL) return String(cfg.SITE_BASE_URL).replace(/\/$/, "");
     if (window.location && /^https?:$/.test(window.location.protocol) && host && host !== "0.0.0.0") {
       return window.location.origin;
@@ -17,11 +21,15 @@
 
   function apiBase() {
     const host = (window.location && window.location.hostname) || "";
-    // En local : toujours l’API du serveur local
-    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+    // Local / Vercel : API sur la même origine (/api/…)
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith(".local") ||
+      host.endsWith(".vercel.app")
+    ) {
       return window.location.origin;
     }
-    // Vercel / autres : API Render centrale
     if (cfg.API_BASE_URL) return String(cfg.API_BASE_URL).replace(/\/$/, "");
     if (cfg.SITE_BASE_URL) return String(cfg.SITE_BASE_URL).replace(/\/$/, "");
     return window.location.origin;

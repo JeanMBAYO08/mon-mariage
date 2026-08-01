@@ -4,10 +4,10 @@
 window.ACCES_CONFIG = {
   WEB_APP_URL: "COLLER_ICI_URL_APPS_SCRIPT",
   SECRET_KEY: "parfaite-jean-2026",
-  // URL publique du site (billets / QR)
-  SITE_BASE_URL: "https://mon-mariage-f7dv.onrender.com",
-  // API invités (Render) — utilisée aussi par l’admin Vercel
-  API_BASE_URL: "https://mon-mariage-f7dv.onrender.com",
+  // URL publique du site (billets / QR) — Vercel
+  SITE_BASE_URL: "https://mon-mariage-rho.vercel.app",
+  // Vide = API sur la même origine (Vercel /api/…)
+  API_BASE_URL: "",
   // Fin des confirmations RSVP (inclus le 15 août 2026, Kinshasa)
   RSVP_DEADLINE: "2026-08-15T23:59:59+01:00",
   // Tables : langages & frameworks (Parfaite & Jean)
