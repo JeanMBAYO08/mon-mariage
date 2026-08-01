@@ -327,26 +327,31 @@
 
         let sheetGuest = null;
         try {
-          if (window.AccesAPI) {
-            const result = await window.AccesAPI.request({
-              action: "rsvp",
-              nom: name,
-              type,
-              personnes,
-              whatsapp: guestPhone,
-              evenement,
-              notes: isCivil ? "RSVP civil" : "RSVP site",
-            });
-            if (result && result.ok) sheetGuest = result.guest;
+          if (!window.AccesAPI) throw new Error("API indisponible");
+          const result = await window.AccesAPI.request({
+            action: "rsvp",
+            nom: name,
+            type,
+            personnes,
+            whatsapp: guestPhone,
+            evenement,
+            notes: isCivil ? "RSVP civil" : "RSVP site",
+          });
+          if (!result || !result.ok) {
+            throw new Error((result && result.error) || "Enregistrement impossible");
           }
+          sheetGuest = result.guest;
         } catch (err) {
           console.warn("RSVP:", err);
-          // On continue quand même vers WhatsApp
+          status.textContent =
+            err.message ||
+            "Impossible d’enregistrer votre confirmation. Réessayez dans un instant.";
+          status.classList.add("is-error");
+          if (submitBtn) submitBtn.disabled = false;
+          return;
         }
 
         // Message prérempli → destinataire = organisateur (+243821377353)
-        // Le WhatsApp de l’invité s’ouvre pour ENVOYER ce message aux mariés.
-        // Ne jamais ouvrir wa.me avec le numéro de l’invité ici.
         const eventLine = isCivil
           ? "Événement : Cérémonie civile"
           : "Événement : Mariage (invitation complète)";
