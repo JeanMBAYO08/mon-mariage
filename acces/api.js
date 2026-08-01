@@ -142,6 +142,7 @@
               notes: params.notes,
               statut: params.statut,
               evenement: params.evenement,
+              code: params.code,
             }),
           });
         }

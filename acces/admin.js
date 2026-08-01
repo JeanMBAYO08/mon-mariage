@@ -14,6 +14,9 @@
     evenementLabel,
   } = window.AccesAPI;
   const form = document.getElementById("add-form");
+  const waForm = document.getElementById("wa-import-form");
+  const waText = document.getElementById("wa-import-text");
+  const waMsg = document.getElementById("wa-import-msg");
   const typeSelect = document.getElementById("admin-type");
   const evenementSelect = document.getElementById("admin-evenement");
   const countWrap = document.getElementById("admin-count-wrap");
@@ -368,6 +371,114 @@
         err.message || "Impossible de charger la liste. Lancez: python3 serve-iphone.py";
       grid.innerHTML = "";
     }
+  }
+
+  function fieldFromText(text, label) {
+    const re = new RegExp(`(?:${label})\\s*[:：]\\s*(.+)`, "i");
+    const match = String(text || "").match(re);
+    return match ? String(match[1] || "").trim() : "";
+  }
+
+  function parseInviteType(raw) {
+    const value = String(raw || "").toLowerCase();
+    const countMatch = value.match(/(\d+)\s*personnes?/);
+    if (value.includes("collectif") || countMatch) {
+      return {
+        type: "collectif",
+        personnes: countMatch ? countMatch[1] : "3",
+      };
+    }
+    if (value.includes("couple")) return { type: "couple", personnes: "2" };
+    if (value.includes("singleton") || value.includes("seul")) {
+      return { type: "singleton", personnes: "1" };
+    }
+    return { type: "singleton", personnes: "1" };
+  }
+
+  function parseWhatsappMessages(raw) {
+    const text = String(raw || "").replace(/\r\n/g, "\n").trim();
+    if (!text) return [];
+
+    let chunks = text.split(/\n(?=Bonjour\s+Parfaite)/i).map((c) => c.trim()).filter(Boolean);
+    if (chunks.length <= 1) {
+      chunks = text
+        .split(/\n\s*-{3,}\s*\n/)
+        .map((c) => c.trim())
+        .filter(Boolean);
+    }
+    if (chunks.length <= 1 && (text.match(/\nNom\s*[:：]/gi) || []).length > 1) {
+      chunks = text.split(/\n(?=Nom\s*[:：])/i).map((c) => c.trim()).filter(Boolean);
+    }
+
+    return chunks
+      .map((chunk) => {
+        const nom = fieldFromText(chunk, "Nom");
+        if (!nom) return null;
+        const eventRaw = fieldFromText(chunk, "Événement|Evenement");
+        const evenement = /civil/i.test(eventRaw) ? "civil" : "soiree";
+        const typeRaw =
+          fieldFromText(chunk, "Type d[’']invitation") ||
+          fieldFromText(chunk, "Type");
+        const { type, personnes } = parseInviteType(typeRaw);
+        const whatsapp = formatWhatsappIntl(
+          fieldFromText(chunk, "WhatsApp") || fieldFromText(chunk, "Téléphone|Telephone")
+        );
+        const code = (fieldFromText(chunk, "Code QR") || "")
+          .toUpperCase()
+          .replace(/\s+/g, "");
+        return {
+          nom,
+          evenement,
+          type,
+          personnes,
+          whatsapp,
+          code: /^PJ-[A-Z0-9]{6}$/.test(code) ? code : "",
+          notes: "Récupéré depuis WhatsApp",
+          statut: "confirme",
+        };
+      })
+      .filter(Boolean);
+  }
+
+  if (waForm) {
+    waForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!waMsg) return;
+      waMsg.classList.remove("is-error");
+      const parsed = parseWhatsappMessages(waText?.value || "");
+      if (!parsed.length) {
+        waMsg.classList.add("is-error");
+        waMsg.textContent =
+          "Aucun message reconnu. Colle un message avec au moins « Nom : … » et « WhatsApp : … ».";
+        return;
+      }
+
+      waMsg.textContent = `Import de ${parsed.length} confirmation(s)…`;
+      const ok = [];
+      const fail = [];
+
+      for (const guest of parsed) {
+        try {
+          if (!guest.whatsapp) throw new Error("WhatsApp manquant");
+          const result = await request({
+            action: "add",
+            ...guest,
+          });
+          if (!result?.ok) throw new Error(result?.error || "Échec");
+          ok.push(`${guest.nom} (${result.guest?.code || "ok"})`);
+        } catch (err) {
+          fail.push(`${guest.nom}: ${err.message || "erreur"}`);
+        }
+      }
+
+      await loadList();
+      if (ok.length && waText) waText.value = "";
+      const parts = [];
+      if (ok.length) parts.push(`${ok.length} ajouté(s) : ${ok.join(" · ")}`);
+      if (fail.length) parts.push(`${fail.length} échec(s) : ${fail.join(" · ")}`);
+      waMsg.classList.toggle("is-error", ok.length === 0);
+      waMsg.textContent = parts.join(" | ");
+    });
   }
 
   form.addEventListener("submit", async (event) => {

@@ -19,6 +19,35 @@
 
   <main class="acces-main acces-main-wide">
     <section class="panel">
+      <h2 class="panel-title">Récupérer depuis WhatsApp</h2>
+      <p class="hint">
+        Colle ici le(s) message(s) de confirmation reçus sur WhatsApp
+        (ceux envoyés sans apparaître dans la liste). Un ou plusieurs messages d’affilée.
+      </p>
+      <form class="admin-form" id="wa-import-form">
+        <label>
+          Message(s) WhatsApp
+          <textarea
+            id="wa-import-text"
+            name="messages"
+            rows="10"
+            required
+            placeholder="Bonjour Parfaite &amp; Jean,
+
+Je confirme ma présence à votre mariage.
+
+Nom : Prénom Nom
+Événement : Mariage (invitation complète)
+Type d’invitation : Couple
+WhatsApp : +243…"
+          ></textarea>
+        </label>
+        <button class="btn btn-gold" type="submit">Importer dans la liste</button>
+        <p class="form-msg" id="wa-import-msg" role="status"></p>
+      </form>
+    </section>
+
+    <section class="panel">
       <h2 class="panel-title">Ajouter un invité</h2>
       <form class="admin-form" id="add-form">
         <label>
