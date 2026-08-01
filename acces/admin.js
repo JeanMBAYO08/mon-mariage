@@ -333,9 +333,12 @@
           if (!result.ok) throw new Error(result.error || "Suppression impossible");
           allGuests = allGuests.filter((g) => g.code !== guest.code);
           paint();
+          // Recharge depuis le serveur pour confirmer la persistance
+          await loadList();
         } catch (err) {
           window.alert(err.message || "Erreur lors de la suppression.");
           deleteBtn.disabled = false;
+          await loadList();
         }
       });
 
