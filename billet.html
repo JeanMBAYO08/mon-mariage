@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <title>Billet soirée — Parfaite & Jean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="acces/acces.css" />
+</head>
+<body class="page-billet">
+  <main class="ticket" id="ticket">
+    <p class="ticket-kicker">Soirée dansante</p>
+    <h1 class="ticket-names">Parfaite &amp; Jean</h1>
+    <p class="ticket-date">11 septembre 2026 · 18h00</p>
+    <p class="ticket-place">Chapiteau Imperial Strong · Kinshasa</p>
+
+    <div class="ticket-qr" id="ticket-qr"></div>
+    <p class="ticket-code" id="ticket-code">—</p>
+
+    <div class="ticket-details">
+      <p class="ticket-detail">
+        <span class="ticket-detail-label">Nom</span>
+        <span class="ticket-detail-value" id="ticket-guest-name">—</span>
+      </p>
+      <p class="ticket-detail">
+        <span class="ticket-detail-label">Type</span>
+        <span class="ticket-detail-value" id="ticket-guest-type">—</span>
+      </p>
+      <p class="ticket-detail">
+        <span class="ticket-detail-label">Table</span>
+        <span class="ticket-detail-value" id="ticket-guest-table">—</span>
+      </p>
+    </div>
+
+    <p class="ticket-status" id="ticket-status"></p>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="acces/config.js"></script>
+  <script src="acces/api.js"></script>
+  <script src="acces/billet.js"></script>
+</body>
+</html>

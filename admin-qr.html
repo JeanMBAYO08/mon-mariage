@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <title>Admin QR — Soirée Parfaite & Jean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="acces/acces.css" />
+</head>
+<body class="page-admin">
+  <header class="acces-top">
+    <p class="acces-kicker">Organisation</p>
+    <h1>QR soirée</h1>
+    <p class="acces-sub">QR, tables et liste des invités confirmés</p>
+  </header>
+
+  <main class="acces-main acces-main-wide">
+    <section class="panel">
+      <h2 class="panel-title">Ajouter un invité</h2>
+      <form class="admin-form" id="add-form">
+        <label>
+          Nom complet
+          <input name="nom" type="text" required placeholder="Prénom Nom" />
+        </label>
+        <label>
+          Type
+          <select name="type" id="admin-type">
+            <option value="singleton">Singleton</option>
+            <option value="couple" selected>Couple</option>
+            <option value="collectif">Collectif</option>
+          </select>
+        </label>
+        <label id="admin-count-wrap" hidden>
+          Nombre de personnes
+          <input name="personnes" id="admin-count" type="number" min="3" max="50" placeholder="Ex. 5" />
+        </label>
+        <label>
+          Table <span class="opt">(langage / framework)</span>
+          <select name="table" id="admin-table">
+            <option value="">— Choisir —</option>
+          </select>
+        </label>
+        <label>
+          WhatsApp invité <span class="opt">(pour partager le QR)</span>
+          <input name="whatsapp" type="tel" inputmode="tel" placeholder="Ex. +243 821 377 353" />
+        </label>
+        <label>
+          Notes <span class="opt">(optionnel)</span>
+          <input name="notes" type="text" placeholder="Allergie, famille…" />
+        </label>
+        <button class="btn btn-gold" type="submit">Créer le QR</button>
+        <p class="form-msg" id="add-msg" role="status"></p>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Liste des QR</h2>
+        <div class="panel-actions">
+          <a class="btn btn-ghost-dark" href="/api/invites.csv">Export CSV</a>
+          <button class="btn btn-ghost-dark" type="button" id="btn-refresh">Actualiser</button>
+        </div>
+      </div>
+      <div class="list-filters">
+        <label>
+          Filtrer par table
+          <select id="filter-table">
+            <option value="all">Toutes</option>
+            <option value="none">Sans table</option>
+          </select>
+        </label>
+      </div>
+      <p class="hint" id="list-status">Chargement…</p>
+      <div class="qr-grid" id="qr-grid"></div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="acces/config.js"></script>
+  <script src="acces/api.js"></script>
+  <script src="acces/admin.js"></script>
+</body>
+</html>

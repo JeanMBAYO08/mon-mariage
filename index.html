@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#E8DCC8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Parfaite & Jean — Mariage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Josefin+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav-brand" href="#accueil">P &amp; J</a>
+    <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+    <button class="nav-backdrop" type="button" aria-label="Fermer le menu" tabindex="-1"></button>
+    <nav class="nav-links" aria-label="Navigation principale">
+      <a href="#jour">Le programme</a>
+      <a href="#tenue">Dress code</a>
+      <a href="#lieu">Le lieu</a>
+      <a href="#rsvp">RSVP</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="accueil">
+      <div class="hero-media" aria-hidden="true">
+        <video
+          class="hero-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          webkit-playsinline
+          preload="auto"
+          disablepictureinpicture
+          poster="images/hero-accueil.jpg?v=2"
+        >
+          <source src="photos/hero-web.mp4?v=1" type="video/mp4" />
+          <source src="photos/hero.mp4?v=hq" type="video/mp4" />
+        </video>
+      </div>
+      <div class="hero-veil" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="hero-kicker">Nous nous marions</p>
+        <h1 class="hero-names">
+          <span class="hero-name">Parfaite</span>
+          <span class="hero-amp">&amp;</span>
+          <span class="hero-name">Jean</span>
+        </h1>
+        <p class="hero-date">
+          <span>10 &amp; 11 septembre 2026</span>
+          <span class="hero-date-sep" aria-hidden="true">·</span>
+          <span>Kinshasa</span>
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#rsvp">Confirmer ma présence</a>
+          <a class="btn btn-ghost" href="#jour">Voir le programme</a>
+        </div>
+      </div>
+      <a class="hero-scroll" href="#jour" aria-label="Défiler vers le programme">
+        <span></span>
+      </a>
+    </section>
+
+    <section class="section day" id="jour">
+      <div class="section-intro">
+        <p class="eyebrow">Le programme</p>
+        <h2>Deux jours pour célébrer notre union</h2>
+        <p class="lede">D’abord le oui civil, puis la bénédiction et la fête — venez partager avec nous ces moments à Kinshasa.</p>
+      </div>
+
+      <ol class="timeline">
+        <li class="timeline-item" style="--i: 0">
+          <time datetime="2026-09-10T13:00">10 sept. · 13h00</time>
+          <div>
+            <h3>Cérémonie civile</h3>
+            <p>Devant l’officier de l’état civil au Musée national de Kinshasa.</p>
+            <p class="dress-note" id="tenue">Dress code</p>
+            <ul class="palette" aria-label="Palette dress code cérémonie civile">
+              <li class="palette-swatch" style="--swatch: var(--foam)" title="Ivoire" aria-label="Ivoire"></li>
+              <li class="palette-swatch" style="--swatch: var(--champagne-soft)" title="Champagne clair" aria-label="Champagne clair"></li>
+              <li class="palette-swatch" style="--swatch: var(--champagne)" title="Champagne" aria-label="Champagne"></li>
+              <li class="palette-swatch" style="--swatch: var(--beige)" title="Beige" aria-label="Beige"></li>
+              <li class="palette-swatch" style="--swatch: var(--champagne-deep)" title="Sable" aria-label="Sable"></li>
+              <li class="palette-swatch" style="--swatch: var(--gold)" title="Or champagne" aria-label="Or champagne"></li>
+            </ul>
+          </div>
+        </li>
+        <li class="timeline-item" style="--i: 1">
+          <time datetime="2026-09-11">11 sept.</time>
+          <div>
+            <h3>Bénédiction nuptiale</h3>
+            <p>À la chapelle du Petit Collège Boboto, Kinshasa — célébration de notre engagement devant Dieu et nos proches.</p>
+          </div>
+        </li>
+        <li class="timeline-item" style="--i: 2">
+          <time datetime="2026-09-11T18:00">11 sept. · 18h00</time>
+          <div>
+            <h3>Soirée dansante</h3>
+            <p>Au chapiteau Imperial Strong, Kinshasa. Repas, toasts et piste de danse jusqu’au bout de la nuit. Merci d’arriver à l’heure pour la séance photo avec les mariés. Accès sur présentation du QR code d’invitation.</p>
+            <p class="dress-note" id="tenue-soiree">Dress code</p>
+            <ul class="palette palette-soir" aria-label="Palette dress code soirée dansante">
+              <li class="palette-swatch" style="--swatch: var(--noir)" title="Noir" aria-label="Noir"></li>
+              <li class="palette-swatch" style="--swatch: var(--noir-soft)" title="Noir doux" aria-label="Noir doux"></li>
+              <li class="palette-swatch" style="--swatch: var(--charcoal)" title="Charbon" aria-label="Charbon"></li>
+              <li class="palette-swatch" style="--swatch: var(--gold)" title="Or" aria-label="Or"></li>
+              <li class="palette-swatch" style="--swatch: var(--gold-bright)" title="Or vif" aria-label="Or vif"></li>
+              <li class="palette-swatch" style="--swatch: var(--gold-soft)" title="Or clair" aria-label="Or clair"></li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section place" id="lieu">
+      <div class="section-intro">
+        <p class="eyebrow">Les lieux</p>
+        <h2>Trois adresses à Kinshasa</h2>
+        <p class="lede">Chaque moment a son adresse. Ouvrez Maps pour vous y rendre facilement.</p>
+      </div>
+
+      <ul class="venues">
+        <li class="venue">
+          <p class="venue-label">Cérémonie civile · 10 sept. · 13h00</p>
+          <h3 class="venue-name">Musée national de Kinshasa</h3>
+          <p class="venue-address">Boulevard Triomphal, Lingwala, Kinshasa</p>
+          <a
+            class="btn btn-maps"
+            href="https://www.google.com/maps/search/?api=1&amp;query=Mus%C3%A9e+national+de+la+R%C3%A9publique+d%C3%A9mocratique+du+Congo+Boulevard+Triomphal+Kinshasa"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="btn-maps-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/>
+            </svg>
+            <span>Ouvrir dans Maps</span>
+          </a>
+        </li>
+        <li class="venue">
+          <p class="venue-label">Bénédiction nuptiale · 11 sept.</p>
+          <h3 class="venue-name">Chapelle du Petit Collège Boboto</h3>
+          <p class="venue-address">Avenue de la Justice, Gombe, Kinshasa</p>
+          <a
+            class="btn btn-maps"
+            href="https://www.google.com/maps/search/?api=1&amp;query=Coll%C3%A8ge+Boboto+Avenue+de+la+Justice+Gombe+Kinshasa"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="btn-maps-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/>
+            </svg>
+            <span>Ouvrir dans Maps</span>
+          </a>
+        </li>
+        <li class="venue">
+          <p class="venue-label">Soirée dansante · 11 sept. · 18h00</p>
+          <h3 class="venue-name">Chapiteau Imperial Strong</h3>
+          <p class="venue-address">16, avenue Sergent Moke (Shawumba), commune de la Gombe, Kinshasa</p>
+          <a
+            class="btn btn-maps"
+            href="https://www.google.com/maps/search/?api=1&amp;query=16+avenue+Sergent+Moke+Shawumba+Gombe+Kinshasa"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="btn-maps-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/>
+            </svg>
+            <span>Ouvrir dans Maps</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section rsvp" id="rsvp">
+      <div class="section-intro">
+        <p class="eyebrow">Réponse</p>
+        <h2>Serez-vous des nôtres&nbsp;?</h2>
+        <p class="lede">Merci de répondre avant le <strong>15 août 2026</strong>. Un message, et nous saurons préparer votre place à nos côtés.</p>
+      </div>
+
+      <form class="rsvp-form" id="rsvp-form" novalidate>
+        <div class="field">
+          <label for="name">Nom complet</label>
+          <input id="name" name="name" type="text" autocomplete="name" required placeholder="Votre prénom et nom" />
+        </div>
+        <fieldset class="field field-choice">
+          <legend>Présence</legend>
+          <label class="choice" for="attendance-yes">
+            <input id="attendance-yes" type="radio" name="attendance" value="yes" checked />
+            <span>Oui, avec plaisir</span>
+          </label>
+          <label class="choice" for="attendance-no">
+            <input id="attendance-no" type="radio" name="attendance" value="no" />
+            <span>Non, hélas</span>
+          </label>
+        </fieldset>
+        <div class="field">
+          <label for="invite-type">Type d’invitation</label>
+          <select id="invite-type" name="inviteType" required>
+            <option value="singleton">Singleton</option>
+            <option value="couple" selected>Couple</option>
+            <option value="collectif">Collectif</option>
+          </select>
+        </div>
+        <div class="field field-collectif is-hidden" id="collectif-field" hidden>
+          <label for="collectif-count">Nombre de personnes</label>
+          <input
+            id="collectif-count"
+            name="collectifCount"
+            type="number"
+            min="3"
+            max="50"
+            step="1"
+            inputmode="numeric"
+            placeholder="Ex. 5"
+          />
+        </div>
+        <div class="field" id="phone-field">
+          <label for="phone">Téléphone WhatsApp</label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            placeholder="Ex. +243 821 377 353"
+          />
+          <p class="field-hint">Format international, ex. +243 pour la RDC.</p>
+        </div>
+        <button class="btn btn-primary" type="submit">Confirmer</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-names">Parfaite &amp; Jean</p>
+    <p class="footer-date">10 &amp; 11 septembre 2026</p>
+    <p class="footer-note">Avec toute notre affection</p>
+  </footer>
+
+  <div class="sad-modal" id="sad-modal" hidden>
+    <div class="sad-modal-card" role="dialog" aria-modal="true" aria-labelledby="sad-modal-title">
+      <p class="sad-modal-emoji" aria-hidden="true">😢</p>
+      <p class="sad-modal-title" id="sad-modal-title">Vous allez nous manquer</p>
+      <p class="sad-modal-text">Merci d’avoir répondu.</p>
+    </div>
+  </div>
+
+  <script>
+    /* Scroll immédiat vers le programme (QR invitation papier) */
+    (function () {
+      function targetId() {
+        var params = new URLSearchParams(window.location.search);
+        var to = params.get("to") || params.get("section") || "";
+        if (!to && window.location.hash) to = window.location.hash.replace(/^#/, "");
+        if (to === "programme" || to === "program") return "jour";
+        return to;
+      }
+
+      function scrollToProgramme() {
+        var id = targetId();
+        if (id !== "jour") return false;
+        var el = document.getElementById("jour");
+        if (!el) return false;
+        var nav = document.querySelector(".nav");
+        var offset = (nav && nav.offsetHeight ? nav.offsetHeight : 72) + 12;
+        var top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo(0, Math.max(0, top));
+        return true;
+      }
+
+      function run() {
+        scrollToProgramme();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", run);
+      } else {
+        run();
+      }
+      window.addEventListener("load", function () {
+        run();
+        window.setTimeout(run, 120);
+        window.setTimeout(run, 450);
+        window.setTimeout(run, 900);
+      });
+    })();
+  </script>
+  <script src="acces/config.js"></script>
+  <script src="acces/api.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+

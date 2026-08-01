@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <title>Contrôle d’accès — Soirée Parfaite & Jean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="acces/acces.css" />
+</head>
+<body class="page-controle">
+  <header class="acces-top">
+    <p class="acces-kicker">Soirée dansante</p>
+    <h1>Contrôle d’accès</h1>
+    <p class="acces-sub">Parfaite &amp; Jean · 11 septembre · 18h00</p>
+  </header>
+
+  <main class="acces-main">
+    <section class="panel">
+      <div id="reader" class="reader"></div>
+      <p class="hint">Autorisez la caméra, puis scannez le QR de l’invité.</p>
+      <div class="manual">
+        <label for="manual-code">Ou saisissez le code</label>
+        <div class="manual-row">
+          <input id="manual-code" type="text" placeholder="PJ-XXXXXX" autocomplete="off" />
+          <button class="btn btn-gold" type="button" id="btn-manual">Valider</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="result" id="result" hidden>
+      <p class="result-status" id="result-status"></p>
+      <h2 class="result-name" id="result-name"></h2>
+      <p class="result-meta" id="result-meta"></p>
+      <div class="result-actions">
+        <button class="btn btn-gold" type="button" id="btn-checkin" hidden>Valider l’entrée</button>
+        <button class="btn btn-ghost-dark" type="button" id="btn-next">Scan suivant</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="acces/config.js"></script>
+  <script src="acces/api.js"></script>
+  <script src="acces/controle.js"></script>
+</body>
+</html>
