@@ -5,6 +5,7 @@
     "type": "singleton",
     "personnes": 1,
     "statut": "confirme",
+    "evenement": "soiree",
     "date_entree": "",
     "notes": "RSVP site",
     "created_at": "2026-07-30T21:40:14",
@@ -19,6 +20,7 @@
     "table": "Swift",
     "whatsapp": "243856705834",
     "statut": "confirme",
+    "evenement": "soiree",
     "date_entree": "",
     "notes": "RSVP site",
     "created_at": "2026-07-30T22:17:39"

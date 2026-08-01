@@ -13,8 +13,8 @@
 <body class="page-admin">
   <header class="acces-top">
     <p class="acces-kicker">Organisation</p>
-    <h1>QR soirée</h1>
-    <p class="acces-sub">QR, tables et liste des invités confirmés</p>
+    <h1>QR invités</h1>
+    <p class="acces-sub">QR civil / soirée, tables et confirmations</p>
   </header>
 
   <main class="acces-main acces-main-wide">
@@ -24,6 +24,13 @@
         <label>
           Nom complet
           <input name="nom" type="text" required placeholder="Prénom Nom" />
+        </label>
+        <label>
+          Événement
+          <select name="evenement" id="admin-evenement">
+            <option value="soiree" selected>Soirée dansante</option>
+            <option value="civil">Cérémonie civile</option>
+          </select>
         </label>
         <label>
           Type
@@ -65,6 +72,14 @@
         </div>
       </div>
       <div class="list-filters">
+        <label>
+          Filtrer par événement
+          <select id="filter-evenement">
+            <option value="all">Tous</option>
+            <option value="civil">Civil</option>
+            <option value="soiree">Soirée</option>
+          </select>
+        </label>
         <label>
           Filtrer par table
           <select id="filter-table">

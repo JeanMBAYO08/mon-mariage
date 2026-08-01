@@ -524,6 +524,30 @@ select:focus {
   color: #e08a7d;
 }
 
+.badge-event.is-civil,
+.ticket-event-badge {
+  border-color: rgba(232, 220, 200, 0.55);
+  color: #f3e9d8;
+  background: rgba(232, 220, 200, 0.12);
+}
+
+.ticket-event-badge {
+  display: inline-block;
+  margin: 0.65rem 0 0;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.page-billet.is-civil .ticket {
+  border-color: rgba(232, 220, 200, 0.45);
+}
+
+.qr-card.is-civil {
+  border-color: rgba(232, 220, 200, 0.28);
+}
+
 /* Billet invité */
 .page-billet {
   display: grid;

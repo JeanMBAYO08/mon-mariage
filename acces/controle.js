@@ -21,8 +21,15 @@
       resultEl.classList.add("is-ok");
       statusEl.textContent = "QR valide";
       nameEl.textContent = data.nom || "Invité";
-      const tableBit = data.table ? ` · Table ${data.table}` : "";
-      metaEl.textContent = `${labelType(data.type)} · ${data.personnes || 1} pers.${tableBit} · ${data.code}`;
+      const eventBit = labelEvent(data.evenement);
+      const tableBit =
+        normalizeEvent(data.evenement) === "civil"
+          ? ""
+          : data.table
+            ? ` · Table ${data.table}`
+            : "";
+      statusEl.textContent = normalizeEvent(data.evenement) === "civil" ? "QR civil valide" : "QR valide";
+      metaEl.textContent = `${eventBit} · ${labelType(data.type)} · ${data.personnes || 1} pers.${tableBit} · ${data.code}`;
       btnCheckin.hidden = false;
       currentCode = data.code;
       return;
@@ -32,11 +39,25 @@
     btnCheckin.hidden = true;
     statusEl.textContent = data.alreadyIn ? "Déjà entré" : data.error || "Refusé";
     nameEl.textContent = data.nom || "—";
-    const tableBit = data.table ? ` · Table ${data.table}` : "";
+    const eventBit = labelEvent(data.evenement);
+    const tableBit =
+      normalizeEvent(data.evenement) === "civil"
+        ? ""
+        : data.table
+          ? ` · Table ${data.table}`
+          : "";
     metaEl.textContent = data.alreadyIn
-      ? `${data.code || ""}${tableBit} · Entrée : ${data.date_entree || "déjà enregistrée"}`
-      : `${data.code || mode || ""}${tableBit}`;
+      ? `${eventBit} · ${data.code || ""}${tableBit} · Entrée : ${data.date_entree || "déjà enregistrée"}`
+      : `${eventBit} · ${data.code || mode || ""}${tableBit}`;
     currentCode = "";
+  }
+
+  function normalizeEvent(raw) {
+    return String(raw || "").toLowerCase() === "civil" ? "civil" : "soiree";
+  }
+
+  function labelEvent(raw) {
+    return normalizeEvent(raw) === "civil" ? "CIVIL" : "SOIRÉE";
   }
 
   function labelType(type) {

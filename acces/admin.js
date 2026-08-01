@@ -10,9 +10,12 @@
     guestTicketMessage,
     normalizeWhatsapp,
     formatWhatsappIntl,
+    normalizeEvenement,
+    evenementLabel,
   } = window.AccesAPI;
   const form = document.getElementById("add-form");
   const typeSelect = document.getElementById("admin-type");
+  const evenementSelect = document.getElementById("admin-evenement");
   const countWrap = document.getElementById("admin-count-wrap");
   const countInput = document.getElementById("admin-count");
   const tableSelect = document.getElementById("admin-table");
@@ -21,6 +24,7 @@
   const listStatus = document.getElementById("list-status");
   const btnRefresh = document.getElementById("btn-refresh");
   const filterTable = document.getElementById("filter-table");
+  const filterEvenement = document.getElementById("filter-evenement");
 
   let allGuests = [];
   const saveTimers = new Map();
@@ -34,8 +38,17 @@
     if (!isCollectif) countInput.value = "";
   }
 
+  function syncEvenementForm() {
+    const isCivil = normalizeEvenement(evenementSelect?.value) === "civil";
+    const tableLabelEl = tableSelect?.closest("label");
+    if (tableLabelEl) tableLabelEl.hidden = isCivil;
+    if (isCivil && tableSelect) tableSelect.value = "";
+  }
+
   typeSelect.addEventListener("change", syncCount);
+  if (evenementSelect) evenementSelect.addEventListener("change", syncEvenementForm);
   syncCount();
+  syncEvenementForm();
 
   function domainOrder(name) {
     const list = tableNames();
@@ -84,9 +97,14 @@
 
   function filteredGuests() {
     const mode = filterTable.value || "all";
-    if (mode === "all") return allGuests;
-    if (mode === "none") return allGuests.filter((g) => !String(g.table || "").trim());
-    return allGuests.filter((g) => String(g.table || "").trim() === mode);
+    const eventMode = filterEvenement?.value || "all";
+    let list = allGuests;
+    if (eventMode !== "all") {
+      list = list.filter((g) => normalizeEvenement(g.evenement) === eventMode);
+    }
+    if (mode === "all") return list;
+    if (mode === "none") return list.filter((g) => !String(g.table || "").trim());
+    return list.filter((g) => String(g.table || "").trim() === mode);
   }
 
   async function saveGuestFields(code, fields, statusEl) {
@@ -169,11 +187,14 @@
     }
 
     const withTable = allGuests.filter((g) => String(g.table || "").trim()).length;
-    listStatus.textContent = `${allGuests.length} invitation(s) · ${withTable} table(s) attribuée(s)`;
+    const civilCount = allGuests.filter((g) => normalizeEvenement(g.evenement) === "civil").length;
+    listStatus.textContent = `${allGuests.length} invitation(s) · ${civilCount} civil · ${withTable} table(s)`;
 
     guests.forEach((guest) => {
+      const evenement = normalizeEvenement(guest.evenement);
+      const isCivil = evenement === "civil";
       const card = document.createElement("article");
-      card.className = "qr-card";
+      card.className = `qr-card${isCivil ? " is-civil" : ""}`;
 
       const box = document.createElement("div");
       box.className = "qr-card-box";
@@ -191,7 +212,7 @@
 
       const meta = document.createElement("p");
       meta.className = "qr-card-meta";
-      meta.textContent = `${guest.type || "—"} · ${guest.personnes || 1} pers.`;
+      meta.textContent = `${evenementLabel(evenement)} · ${guest.type || "—"} · ${guest.personnes || 1} pers.`;
 
       const code = document.createElement("p");
       code.className = "qr-card-code";
@@ -199,6 +220,7 @@
 
       const tableRow = document.createElement("label");
       tableRow.className = "qr-table-field";
+      tableRow.hidden = isCivil;
       const tableCaption = document.createElement("span");
       tableCaption.textContent = "Table";
       const guestTableSelect = document.createElement("select");
@@ -277,16 +299,22 @@
       badge.className = `badge${guest.statut === "entree" ? " is-entree" : ""}`;
       badge.textContent = guest.statut || "invite";
 
+      const eventBadge = document.createElement("span");
+      eventBadge.className = `badge badge-event${isCivil ? " is-civil" : ""}`;
+      eventBadge.textContent = isCivil ? "CIVIL" : "SOIRÉE";
+
       const tableBadge = document.createElement("span");
       tableBadge.className = `badge badge-table${guest.table ? "" : " is-empty"}`;
-      tableBadge.textContent = tableLabel(guest.table);
+      tableBadge.textContent = isCivil ? "Civil" : tableLabel(guest.table);
+      tableBadge.hidden = isCivil;
 
       const actions = document.createElement("div");
       actions.className = "qr-card-actions";
 
+      const billetHref = ticketUrl(guest.code, evenement);
       const link = document.createElement("a");
       link.className = "btn btn-ghost-dark";
-      link.href = ticketUrl(guest.code);
+      link.href = billetHref;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = "Ouvrir billet";
@@ -298,10 +326,10 @@
       shareAction.addEventListener("click", () => shareBtn.click());
 
       actions.append(link, shareAction);
-      card.append(box, name, meta, code, tableRow, waRow, badge, tableBadge, actions);
+      card.append(box, name, meta, code, tableRow, waRow, eventBadge, badge, tableBadge, actions);
       grid.appendChild(card);
 
-      renderQrWithLogo(box, ticketUrl(guest.code), 128);
+      renderQrWithLogo(box, billetHref, 128);
       box.appendChild(shareBtn);
     });
   }
@@ -333,8 +361,9 @@
     const data = new FormData(form);
     const nom = String(data.get("nom") || "").trim();
     const type = String(data.get("type") || "singleton");
+    const evenement = normalizeEvenement(data.get("evenement") || "soiree");
     const personnes = String(data.get("personnes") || "");
-    const table = String(data.get("table") || "").trim();
+    const table = evenement === "civil" ? "" : String(data.get("table") || "").trim();
     const whatsapp = formatWhatsappIntl(String(data.get("whatsapp") || "").trim());
     const notes = String(data.get("notes") || "").trim();
 
@@ -347,13 +376,15 @@
         table,
         whatsapp,
         notes,
+        evenement,
       });
       if (!result.ok) throw new Error(result.error || "Échec");
-      msg.textContent = `QR créé : ${result.guest.code}${
+      msg.textContent = `QR créé : ${result.guest.code} · ${evenementLabel(evenement)}${
         result.guest.table ? ` · ${tableLabel(result.guest.table)}` : ""
       }`;
       form.reset();
       syncCount();
+      syncEvenementForm();
       fillTableSelect(tableSelect);
       await loadList();
     } catch (err) {
@@ -363,6 +394,7 @@
   });
 
   filterTable.addEventListener("change", paint);
+  if (filterEvenement) filterEvenement.addEventListener("change", paint);
   btnRefresh.addEventListener("click", loadList);
   loadList();
 })();

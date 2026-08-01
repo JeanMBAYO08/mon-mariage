@@ -24,8 +24,21 @@
     return window.location.origin;
   }
 
-  function ticketUrl(code) {
-    return `${siteBase()}/billet.html?code=${encodeURIComponent(code)}`;
+  function normalizeEvenement(raw) {
+    const value = String(raw || "").trim().toLowerCase();
+    if (value === "civil") return "civil";
+    return "soiree";
+  }
+
+  function evenementLabel(raw) {
+    return normalizeEvenement(raw) === "civil" ? "Cérémonie civile" : "Soirée dansante";
+  }
+
+  function ticketUrl(code, evenement) {
+    const ev = normalizeEvenement(evenement);
+    let url = `${siteBase()}/billet.html?code=${encodeURIComponent(code)}`;
+    if (ev === "civil") url += "&ceremonie=civil";
+    return url;
   }
 
   function localApiAvailable() {
@@ -117,6 +130,7 @@
               whatsapp: params.whatsapp,
               notes: params.notes,
               statut: params.statut,
+              evenement: params.evenement,
             }),
           });
         }
@@ -129,6 +143,7 @@
               whatsapp: params.whatsapp,
               notes: params.notes,
               nom: params.nom,
+              evenement: params.evenement,
             }),
           });
         }
@@ -220,18 +235,22 @@
   }
 
   function guestTicketMessage(guest) {
-    const url = ticketUrl(guest.code);
+    const evenement = normalizeEvenement(guest.evenement);
+    const url = ticketUrl(guest.code, evenement);
     const first = String(guest.nom || "invité").trim().split(/\s+/)[0] || "invité";
     const nom = String(guest.nom || "").trim() || "—";
     const type = inviteTypeLabel(guest.type);
+    const eventLabel = evenementLabel(evenement);
     const table = String(guest.table || "").trim() || "Non attribuée";
+    const tableLine = evenement === "civil" ? "" : `Table : ${table}\n`;
     return (
       `Bonjour ${first},\n\n` +
-      `Voici le lien de votre QR code d’accès à la soirée de Parfaite & Jean :\n` +
+      `Voici le lien de votre QR code d’accès (${eventLabel}) — Parfaite & Jean :\n` +
       `${url}\n\n` +
+      `Événement : ${eventLabel}\n` +
       `Nom : ${nom}\n` +
       `Type : ${type}\n` +
-      `Table : ${table}\n` +
+      tableLine +
       `Code : ${guest.code}\n\n` +
       `Ouvrez le lien pour afficher votre QR.\n` +
       `À très bientôt.`
@@ -263,6 +282,8 @@
     cfg,
     siteBase,
     ticketUrl,
+    normalizeEvenement,
+    evenementLabel,
     request,
     extractCode,
     renderQrWithLogo,

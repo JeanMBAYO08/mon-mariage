@@ -164,6 +164,13 @@
   if (form && status) {
     // Numéro des organisateurs (destinataire du message de confirmation)
     const ORGANIZER_WHATSAPP = "243821377353";
+    const evenement =
+      (window.AccesAPI && window.AccesAPI.normalizeEvenement
+        ? window.AccesAPI.normalizeEvenement(document.body.dataset.evenement)
+        : String(document.body.dataset.evenement || "soiree").toLowerCase() === "civil"
+          ? "civil"
+          : "soiree");
+    const isCivil = evenement === "civil";
     const submitBtn = form.querySelector('button[type="submit"]');
     const attendanceInputs = form.querySelectorAll('input[name="attendance"]');
     const inviteType = document.getElementById("invite-type");
@@ -303,7 +310,8 @@
               type,
               personnes,
               whatsapp: guestPhone,
-              notes: "RSVP site",
+              evenement,
+              notes: isCivil ? "RSVP civil" : "RSVP site",
             });
             if (result && result.ok) sheetGuest = result.guest;
           }
@@ -315,15 +323,22 @@
         // Message prérempli → destinataire = organisateur (+243821377353)
         // Le WhatsApp de l’invité s’ouvre pour ENVOYER ce message aux mariés.
         // Ne jamais ouvrir wa.me avec le numéro de l’invité ici.
+        const eventLine = isCivil
+          ? "Événement : Cérémonie civile"
+          : "Événement : Mariage (invitation complète)";
+        const confirmLine = isCivil
+          ? "Je confirme ma présence à votre cérémonie civile."
+          : "Je confirme ma présence à votre mariage.";
         const coupleText =
           `Bonjour Parfaite & Jean,\n\n` +
-          `Je confirme ma présence à votre mariage.\n\n` +
+          `${confirmLine}\n\n` +
           `Nom : ${name}\n` +
+          `${eventLine}\n` +
           `${typeLine}\n` +
           `WhatsApp : ${guestPhone}` +
           (sheetGuest?.code ? `\nCode QR : ${sheetGuest.code}` : "") +
           (sheetGuest?.code && window.AccesAPI?.ticketUrl
-            ? `\nBillet : ${window.AccesAPI.ticketUrl(sheetGuest.code)}`
+            ? `\nBillet : ${window.AccesAPI.ticketUrl(sheetGuest.code, evenement)}`
             : "");
 
         const coupleWhatsappUrl = `https://wa.me/${ORGANIZER_WHATSAPP}?text=${encodeURIComponent(coupleText)}`;

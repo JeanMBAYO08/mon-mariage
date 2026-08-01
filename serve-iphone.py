@@ -142,9 +142,16 @@ def normalize_whatsapp(raw) -> str:
     return f"+{digits}"
 
 
+def normalize_evenement(raw) -> str:
+    value = str(raw or "").strip().lower()
+    return "civil" if value == "civil" else "soiree"
+
+
 def guest_public(guest: dict, *extra_keys: str) -> dict:
-    keys = ("code", "nom", "type", "personnes", "statut", "table", "whatsapp", "date_entree") + extra_keys
-    return {k: guest.get(k, "") for k in keys}
+    keys = ("code", "nom", "type", "personnes", "statut", "table", "whatsapp", "date_entree", "evenement") + extra_keys
+    data = {k: guest.get(k, "") for k in keys}
+    data["evenement"] = normalize_evenement(data.get("evenement") or guest.get("evenement"))
+    return data
 
 
 def save_invites(invites: list[dict]) -> None:
@@ -162,6 +169,7 @@ def save_invites(invites: list[dict]) -> None:
                 "whatsapp",
                 "statut",
                 "date_entree",
+                "evenement",
                 "notes",
             ],
         )
@@ -177,6 +185,7 @@ def save_invites(invites: list[dict]) -> None:
                     "whatsapp": guest.get("whatsapp", ""),
                     "statut": guest.get("statut", ""),
                     "date_entree": guest.get("date_entree", ""),
+                    "evenement": normalize_evenement(guest.get("evenement")),
                     "notes": guest.get("notes", ""),
                 }
             )
@@ -212,6 +221,7 @@ def upsert_rsvp(payload: dict) -> dict:
     personnes = normalize_personnes(invite_type, payload.get("personnes"))
     notes = str(payload.get("notes") or "RSVP site").strip()
     statut = str(payload.get("statut") or "confirme").strip().lower()
+    evenement = normalize_evenement(payload.get("evenement"))
     table = normalize_table(payload.get("table"))
     has_table = "table" in payload
     has_whatsapp = "whatsapp" in payload
@@ -219,14 +229,17 @@ def upsert_rsvp(payload: dict) -> dict:
 
     invites = load_invites()
     for guest in invites:
-        if str(guest.get("nom", "")).strip().lower() == nom.lower():
+        same_name = str(guest.get("nom", "")).strip().lower() == nom.lower()
+        same_event = normalize_evenement(guest.get("evenement")) == evenement
+        if same_name and same_event:
             if guest.get("statut") == "entree":
-                return {"ok": True, "updated": True, "alreadyIn": True, "guest": guest}
+                return {"ok": True, "updated": True, "alreadyIn": True, "guest": guest_public(guest)}
             guest.update(
                 {
                     "type": invite_type,
                     "personnes": personnes,
                     "statut": statut,
+                    "evenement": evenement,
                     "notes": notes or guest.get("notes", ""),
                 }
             )
@@ -239,7 +252,7 @@ def upsert_rsvp(payload: dict) -> dict:
             elif "whatsapp" not in guest:
                 guest["whatsapp"] = ""
             save_invites(invites)
-            return {"ok": True, "updated": True, "guest": guest}
+            return {"ok": True, "updated": True, "guest": guest_public(guest)}
 
     guest = {
         "code": generate_code(invites),
@@ -249,13 +262,14 @@ def upsert_rsvp(payload: dict) -> dict:
         "table": table,
         "whatsapp": whatsapp,
         "statut": statut,
+        "evenement": evenement,
         "date_entree": "",
         "notes": notes,
         "created_at": datetime.now().isoformat(timespec="seconds"),
     }
     invites.append(guest)
     save_invites(invites)
-    return {"ok": True, "created": True, "guest": guest}
+    return {"ok": True, "created": True, "guest": guest_public(guest)}
 
 
 def update_guest(payload: dict) -> dict:
@@ -275,8 +289,10 @@ def update_guest(payload: dict) -> dict:
             guest["notes"] = str(payload.get("notes") or "").strip()
         if "nom" in payload and str(payload.get("nom") or "").strip():
             guest["nom"] = str(payload.get("nom")).strip()
+        if "evenement" in payload:
+            guest["evenement"] = normalize_evenement(payload.get("evenement"))
         save_invites(invites)
-        return {"ok": True, "updated": True, "guest": guest}
+        return {"ok": True, "updated": True, "guest": guest_public(guest)}
 
     return {"ok": False, "error": "Invité introuvable", "code": code}
 
@@ -454,7 +470,8 @@ class Handler(SimpleHTTPRequestHandler):
 
         if path == "/api/invites" or path == "/api/list":
             invites = load_invites()
-            return self._json({"ok": True, "guests": invites, "total": len(invites)})
+            guests = [guest_public(g, "notes", "created_at") for g in invites]
+            return self._json({"ok": True, "guests": guests, "total": len(guests)})
 
         if path == "/api/validate":
             q = self._parse_qs()
