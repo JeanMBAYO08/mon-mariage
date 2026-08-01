@@ -15,14 +15,14 @@ export default async function handler(req, res) {
   };
 
   try {
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
     await put("invites/.storage-check", "ok", {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: "text/plain",
+      token,
     });
-    const { blobs } = await list({ prefix: "invites/", limit: 5 });
-    status.blobWritable = blobs.some((b) => b.pathname.includes("storage-check") || b.pathname.includes("invites"));
     status.blobWritable = true;
   } catch (err) {
     status.blobError = err?.message || String(err);
