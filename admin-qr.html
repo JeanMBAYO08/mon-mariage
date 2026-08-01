@@ -55,10 +55,17 @@
           <input name="whatsapp" type="tel" inputmode="tel" placeholder="Ex. +243 821 377 353" />
         </label>
         <label>
-          Notes <span class="opt">(optionnel)</span>
-          <input name="notes" type="text" placeholder="Allergie, famille…" />
+          Statut
+          <select name="statut" id="admin-statut">
+            <option value="confirme" selected>Confirmé (RSVP / ajout manuel)</option>
+            <option value="invite">Invité (pas encore confirmé)</option>
+          </select>
         </label>
-        <button class="btn btn-gold" type="submit">Créer le QR</button>
+        <label>
+          Notes <span class="opt">(optionnel)</span>
+          <input name="notes" type="text" placeholder="Ex. Ajout manuel WhatsApp" />
+        </label>
+        <button class="btn btn-gold" type="submit">Ajouter &amp; créer le QR</button>
         <p class="form-msg" id="add-msg" role="status"></p>
       </form>
     </section>

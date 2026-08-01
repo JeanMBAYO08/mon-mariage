@@ -382,7 +382,8 @@
     const personnes = String(data.get("personnes") || "");
     const table = evenement === "civil" ? "" : String(data.get("table") || "").trim();
     const whatsapp = formatWhatsappIntl(String(data.get("whatsapp") || "").trim());
-    const notes = String(data.get("notes") || "").trim();
+    const notes = String(data.get("notes") || "").trim() || "Ajout manuel";
+    const statut = String(data.get("statut") || "confirme").trim().toLowerCase() || "confirme";
 
     try {
       const result = await request({
@@ -394,14 +395,18 @@
         whatsapp,
         notes,
         evenement,
+        statut,
       });
       if (!result.ok) throw new Error(result.error || "Échec");
-      msg.textContent = `QR créé : ${result.guest.code} · ${evenementLabel(evenement)}${
-        result.guest.table ? ` · ${tableLabel(result.guest.table)}` : ""
-      }`;
+      msg.textContent = `Ajouté : ${result.guest.code} · ${evenementLabel(evenement)} · ${
+        statut === "confirme" ? "confirmé" : "invité"
+      }${result.guest.table ? ` · ${tableLabel(result.guest.table)}` : ""}`;
       form.reset();
       syncCount();
       syncEvenementForm();
+      if (document.getElementById("admin-statut")) {
+        document.getElementById("admin-statut").value = "confirme";
+      }
       fillTableSelect(tableSelect);
       await loadList();
     } catch (err) {
