@@ -80,30 +80,15 @@ def ensure_certs(ip: str) -> None:
 
 
 def public_base_url(ip: str, port: int, scheme: str) -> str:
-    # Render / prod : utiliser l’URL publique, jamais l’IP interne du conteneur
-    for key in ("SITE_BASE_URL", "RENDER_EXTERNAL_URL"):
-        val = (os.environ.get(key) or "").strip().rstrip("/")
-        if val:
-            return val
+    val = (os.environ.get("SITE_BASE_URL") or "").strip().rstrip("/")
+    if val:
+        return val
     return f"{scheme}://{ip}:{port}"
 
 
 def update_site_base(ip: str, port: int, scheme: str) -> None:
-    # Ne réécrit SITE_BASE_URL qu’en prod Render (évite d’écraser l’URL publique en local)
-    if not (os.environ.get("RENDER") or os.environ.get("RENDER_EXTERNAL_URL")):
-        return
-    if not CONFIG.exists():
-        return
-    content = CONFIG.read_text(encoding="utf-8")
-    base = public_base_url(ip, port, scheme)
-    updated = re.sub(
-        r'SITE_BASE_URL:\s*"[^"]*"',
-        f'SITE_BASE_URL: "{base}"',
-        content,
-        count=1,
-    )
-    if updated != content:
-        CONFIG.write_text(updated, encoding="utf-8")
+    # Ne pas réécrire config.js en local (Vercel reste la source de vérité en prod)
+    return
 
 
 def load_invites() -> list[dict]:

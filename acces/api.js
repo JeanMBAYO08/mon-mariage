@@ -21,13 +21,12 @@
 
   function apiBase() {
     const host = (window.location && window.location.hostname) || "";
-    // Local / Vercel : API sur la même origine (/api/…)
-    if (
-      host === "localhost" ||
-      host === "127.0.0.1" ||
-      host.endsWith(".local") ||
-      host.endsWith(".vercel.app")
-    ) {
+    // Local : API locale
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+      return window.location.origin;
+    }
+    // Prod : uniquement Vercel (jamais Render)
+    if (host.endsWith(".vercel.app")) {
       return window.location.origin;
     }
     if (cfg.API_BASE_URL) return String(cfg.API_BASE_URL).replace(/\/$/, "");
