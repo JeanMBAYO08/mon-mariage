@@ -267,7 +267,7 @@ def upsert_rsvp(payload: dict) -> dict:
     return {"ok": True, "created": True, "guest": guest_public(guest)}
 
 
-RSVP_DEADLINE = os.environ.get("RSVP_DEADLINE", "2026-08-15T23:59:59+01:00")
+RSVP_DEADLINE = os.environ.get("RSVP_DEADLINE", "2026-08-17T23:59:59+01:00")
 
 
 def rsvp_open(now: datetime | None = None) -> bool:
@@ -275,7 +275,7 @@ def rsvp_open(now: datetime | None = None) -> bool:
     try:
         deadline = datetime.fromisoformat(RSVP_DEADLINE)
     except Exception:
-        deadline = datetime.fromisoformat("2026-08-15T23:59:59+01:00")
+        deadline = datetime.fromisoformat("2026-08-17T23:59:59+01:00")
     if deadline.tzinfo is None:
         deadline = deadline.replace(tzinfo=current.tzinfo)
     if current.tzinfo is None:
@@ -535,7 +535,7 @@ class Handler(SimpleHTTPRequestHandler):
                     return self._json(
                         {
                             "ok": False,
-                            "error": "Les confirmations sont closes depuis le 15 août 2026.",
+                            "error": "Les confirmations sont closes depuis le 17 août 2026.",
                             "closed": True,
                         },
                         403,
