@@ -175,14 +175,14 @@
     const rsvpOpen =
       window.AccesAPI && typeof window.AccesAPI.isRsvpOpen === "function"
         ? window.AccesAPI.isRsvpOpen()
-        : new Date() <= new Date("2026-08-17T23:59:59+01:00");
+        : new Date() <= new Date("2026-08-25T23:59:59+01:00");
 
     if (!rsvpOpen) {
       form.querySelectorAll("input, select, button").forEach((el) => {
         el.disabled = true;
       });
       status.textContent =
-        "Les confirmations sont closes depuis le 17 août 2026. Merci de votre compréhension.";
+        "Les confirmations sont closes depuis le 25 août 2026. Merci de votre compréhension.";
       status.classList.add("is-error");
     }
     const attendanceInputs = form.querySelectorAll('input[name="attendance"]');
@@ -264,10 +264,10 @@
       if (
         window.AccesAPI && typeof window.AccesAPI.isRsvpOpen === "function"
           ? !window.AccesAPI.isRsvpOpen()
-          : new Date() > new Date("2026-08-17T23:59:59+01:00")
+          : new Date() > new Date("2026-08-25T23:59:59+01:00")
       ) {
         status.textContent =
-          "Les confirmations sont closes depuis le 17 août 2026. Merci de votre compréhension.";
+          "Les confirmations sont closes depuis le 25 août 2026. Merci de votre compréhension.";
         status.classList.add("is-error");
         return;
       }

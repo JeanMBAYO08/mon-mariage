@@ -7,8 +7,8 @@ window.ACCES_CONFIG = {
   // Site + API uniquement sur Vercel
   SITE_BASE_URL: "https://mon-mariage-rho.vercel.app",
   API_BASE_URL: "https://mon-mariage-rho.vercel.app",
-  // Fin des confirmations RSVP (inclus le 17 août 2026, Kinshasa)
-  RSVP_DEADLINE: "2026-08-17T23:59:59+01:00",
+  // Fin des confirmations RSVP (inclus le 25 août 2026, Kinshasa)
+  RSVP_DEADLINE: "2026-08-25T23:59:59+01:00",
   // Tables : langages & frameworks (Parfaite & Jean)
   TABLE_NAMES: [
     "Python",

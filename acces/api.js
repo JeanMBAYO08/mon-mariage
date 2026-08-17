@@ -298,9 +298,9 @@
   }
 
   function rsvpDeadline() {
-    const raw = cfg.RSVP_DEADLINE || "2026-08-17T23:59:59+01:00";
+    const raw = cfg.RSVP_DEADLINE || "2026-08-25T23:59:59+01:00";
     const date = new Date(raw);
-    return Number.isNaN(date.getTime()) ? new Date("2026-08-17T23:59:59+01:00") : date;
+    return Number.isNaN(date.getTime()) ? new Date("2026-08-25T23:59:59+01:00") : date;
   }
 
   function isRsvpOpen(now = new Date()) {
