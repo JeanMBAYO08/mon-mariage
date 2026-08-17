@@ -178,7 +178,7 @@
     const phone =
       typeof api.formatWhatsappIntl === "function"
         ? api.formatWhatsappIntl(phoneOverride ?? guest?.whatsapp)
-        : String(phoneOverride ?? guest?.whatsapp || "");
+        : String(phoneOverride ?? guest?.whatsapp ?? "");
     if (!phone) {
       throw new Error("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
     }
