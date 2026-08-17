@@ -166,7 +166,6 @@
       `Bonjour ${first},\n\n` +
       `Merci d’avoir confirmé 💛\n` +
       `${tableLine}.\n\n` +
-      `Remarque : Afin de simplifier l’organisation, merci d’opter pour des présents en espèces.\n\n` +
       (qrUrl ? `Votre QR d’accès : ${qrUrl}\n\n` : "") +
       `On a hâte de vous retrouver.\n` +
       `Parfaite & Jean`
