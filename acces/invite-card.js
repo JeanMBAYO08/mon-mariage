@@ -88,32 +88,25 @@
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.font = '400 20px "Josefin Sans", "Helvetica Neue", sans-serif';
-    drawCentered(ctx, "INVITÉ(E)", cx, panelTop + panelHeight * 0.18);
+    drawCentered(ctx, "INVITÉ(E)", cx, panelTop + panelHeight * 0.22);
 
     ctx.fillStyle = "#ffffff";
     const nameSize = fitText(ctx, nom, maxTextW, 46, 24);
     ctx.font = `500 ${nameSize}px "Bodoni Moda", Georgia, serif`;
-    drawCentered(ctx, nom, cx, panelTop + panelHeight * 0.38);
+    drawCentered(ctx, nom, cx, panelTop + panelHeight * 0.45);
 
     ctx.strokeStyle = "rgba(212, 175, 55, 0.55)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(cx - 78, panelTop + panelHeight * 0.52);
-    ctx.lineTo(cx + 78, panelTop + panelHeight * 0.52);
+    ctx.moveTo(cx - 78, panelTop + panelHeight * 0.62);
+    ctx.lineTo(cx + 78, panelTop + panelHeight * 0.62);
     ctx.stroke();
 
     ctx.fillStyle = "#e8d5a3";
     const tableSize = fitText(ctx, tableLabel, maxTextW, 30, 18);
     ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-    drawCentered(ctx, tableLabel, cx, panelTop + panelHeight * 0.66);
+    drawCentered(ctx, tableLabel, cx, panelTop + panelHeight * 0.78);
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
-    ctx.font = '400 17px "Josefin Sans", "Helvetica Neue", sans-serif';
-    const note =
-      "Remarque : Afin de simplifier l’organisation, merci d’opter pour des présents en espèces.";
-    const noteSize = fitText(ctx, note, maxTextW, 17, 13);
-    ctx.font = `400 ${noteSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-    drawCentered(ctx, note, cx, panelTop + panelHeight * 0.86);
 
     const blob = await new Promise((resolve, reject) => {
       canvas.toBlob(
