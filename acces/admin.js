@@ -165,18 +165,14 @@
 
     const run = async () => {
       if (!window.InviteCard?.shareGuestInviteCard) {
-        const message =
-          window.InviteCard?.guestConfirmCardMessage?.(guest) ||
-          guestTicketMessage({ ...guest, whatsapp: phone });
-        const url = whatsappShareUrl(phone, message);
-        if (url) window.open(url, "_blank", "noopener,noreferrer");
+        window.alert("Module invitation indisponible. Rafraîchissez la page.");
         return;
       }
       try {
         const result = await window.InviteCard.shareGuestInviteCard(guest, phone);
         if (result?.downloaded) {
           window.alert(
-            "Invitation personnalisée téléchargée.\nJoignez le fichier PNG dans la conversation WhatsApp qui vient de s’ouvrir."
+            "Photo d’invitation téléchargée.\nJoignez uniquement cette image dans WhatsApp (sans texte)."
           );
         }
       } catch (err) {

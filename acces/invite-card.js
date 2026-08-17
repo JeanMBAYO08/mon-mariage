@@ -185,21 +185,21 @@
 
     const { blob, filename } = await buildGuestInviteCard(guest);
     const file = new File([blob], filename, { type: "image/png" });
-    const message = guestConfirmCardMessage(guest);
 
+    // Image seule — aucun message texte
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        text: message,
-        title: "Invitation — Parfaite & Jean",
-      });
+      await navigator.share({ files: [file] });
       return { shared: true, downloaded: false };
     }
 
     downloadBlob(blob, filename);
-    const waUrl =
-      typeof api.whatsappShareUrl === "function" ? api.whatsappShareUrl(phone, message) : "";
-    if (waUrl) window.open(waUrl, "_blank", "noopener,noreferrer");
+    const digits =
+      typeof api.normalizeWhatsapp === "function"
+        ? api.normalizeWhatsapp(phone)
+        : String(phone).replace(/\D/g, "");
+    if (digits) {
+      window.open(`https://wa.me/${digits}`, "_blank", "noopener,noreferrer");
+    }
     return { shared: false, downloaded: true };
   }
 
