@@ -162,14 +162,29 @@
       window.alert("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
       return;
     }
-    const message = guestTicketMessage({ ...guest, whatsapp: phone });
-    const url = whatsappShareUrl(phone, message);
-    if (!url) {
-      window.alert("Numéro WhatsApp invalide. Utilisez le format +243…");
-      return;
-    }
-    // Ouvre WhatsApp vers le numéro de l’invité avec le lien du QR
-    window.open(url, "_blank", "noopener,noreferrer");
+
+    const run = async () => {
+      if (!window.InviteCard?.shareGuestInviteCard) {
+        const message =
+          window.InviteCard?.guestConfirmCardMessage?.(guest) ||
+          guestTicketMessage({ ...guest, whatsapp: phone });
+        const url = whatsappShareUrl(phone, message);
+        if (url) window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      try {
+        const result = await window.InviteCard.shareGuestInviteCard(guest, phone);
+        if (result?.downloaded) {
+          window.alert(
+            "Invitation personnalisée téléchargée.\nJoignez le fichier PNG dans la conversation WhatsApp qui vient de s’ouvrir."
+          );
+        }
+      } catch (err) {
+        window.alert(err?.message || "Impossible de préparer l’invitation.");
+      }
+    };
+
+    run();
   }
 
   function renderGuests(guests) {
@@ -198,8 +213,8 @@
       const shareBtn = document.createElement("button");
       shareBtn.type = "button";
       shareBtn.className = "btn-share-qr";
-      shareBtn.title = "Partager le QR sur WhatsApp";
-      shareBtn.setAttribute("aria-label", `Partager le QR de ${guest.nom} sur WhatsApp`);
+      shareBtn.title = "Envoyer l’invitation (nom + table) sur WhatsApp";
+      shareBtn.setAttribute("aria-label", `Envoyer l’invitation de ${guest.nom} sur WhatsApp`);
       shareBtn.innerHTML = shareIconSvg();
 
       const name = document.createElement("p");
@@ -318,8 +333,25 @@
       const shareAction = document.createElement("button");
       shareAction.type = "button";
       shareAction.className = "btn btn-share-wa";
-      shareAction.innerHTML = `${shareIconSvg()}<span>WhatsApp</span>`;
+      shareAction.innerHTML = `${shareIconSvg()}<span>Invitation WA</span>`;
       shareAction.addEventListener("click", () => shareBtn.click());
+
+      const downloadCardBtn = document.createElement("button");
+      downloadCardBtn.type = "button";
+      downloadCardBtn.className = "btn btn-ghost-dark";
+      downloadCardBtn.textContent = "Carte";
+      downloadCardBtn.title = "Télécharger l’invitation personnalisée";
+      downloadCardBtn.addEventListener("click", async () => {
+        try {
+          if (!window.InviteCard?.buildGuestInviteCard) {
+            throw new Error("Module invitation indisponible");
+          }
+          const { blob, filename } = await window.InviteCard.buildGuestInviteCard(guest);
+          window.InviteCard.downloadBlob(blob, filename);
+        } catch (err) {
+          window.alert(err?.message || "Téléchargement impossible.");
+        }
+      });
 
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
@@ -345,7 +377,7 @@
         }
       });
 
-      actions.append(link, shareAction, deleteBtn);
+      actions.append(link, shareAction, downloadCardBtn, deleteBtn);
       card.append(box, name, meta, code, tableRow, waRow, eventBadge, badge, tableBadge, actions);
       grid.appendChild(card);
 
