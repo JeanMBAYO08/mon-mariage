@@ -110,7 +110,7 @@
     ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
     ctx.font = '400 17px "Josefin Sans", "Helvetica Neue", sans-serif';
     const note =
-      "⚠️ Important : pour des raisons logistiques, priorisez les cadeaux en espèces.";
+      "Remarque : Afin de simplifier l’organisation, merci d’opter pour des présents en espèces.";
     const noteSize = fitText(ctx, note, maxTextW, 17, 13);
     ctx.font = `400 ${noteSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, note, cx, panelTop + panelHeight * 0.86);
@@ -166,7 +166,7 @@
       `Bonjour ${first},\n\n` +
       `Merci d’avoir confirmé 💛\n` +
       `${tableLine}.\n\n` +
-      `⚠️ Important : pour des raisons logistiques, nous priorisons les cadeaux en espèces.\n\n` +
+      `Remarque : Afin de simplifier l’organisation, merci d’opter pour des présents en espèces.\n\n` +
       (qrUrl ? `Votre QR d’accès : ${qrUrl}\n\n` : "") +
       `On a hâte de vous retrouver.\n` +
       `Parfaite & Jean`
