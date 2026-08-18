@@ -46,7 +46,7 @@
   goToSection();
 
   if (heroVideo) {
-    const endAt = 43;
+    const clipEnd = 43;
     const media = heroVideo.closest(".hero-media");
 
     heroVideo.muted = true;
@@ -58,7 +58,7 @@
     heroVideo.setAttribute("webkit-playsinline", "");
     heroVideo.setAttribute("autoplay", "");
 
-    const markPlaying = () => {
+    const markReady = () => {
       if (media) media.classList.add("is-playing");
       heroVideo.classList.add("is-playing");
     };
@@ -67,51 +67,49 @@
       heroVideo.muted = true;
       const playPromise = heroVideo.play();
       if (playPromise && typeof playPromise.then === "function") {
-        playPromise.then(markPlaying).catch(() => {});
+        playPromise.then(markReady).catch(() => {
+          if (heroVideo.readyState >= 2) markReady();
+        });
+      } else if (heroVideo.readyState >= 2) {
+        markReady();
       }
     };
 
-    const keepLooping = () => {
-      if (heroVideo.currentTime >= endAt) {
-        heroVideo.currentTime = 0.01;
+    heroVideo.addEventListener("loadeddata", () => {
+      markReady();
+      tryPlay();
+    });
+    heroVideo.addEventListener("canplay", tryPlay);
+    heroVideo.addEventListener("canplaythrough", tryPlay);
+    heroVideo.addEventListener("playing", markReady);
+    heroVideo.addEventListener("timeupdate", () => {
+      if (heroVideo.duration > clipEnd && heroVideo.currentTime >= clipEnd) {
+        heroVideo.currentTime = 0;
         tryPlay();
       }
-    };
-
-    heroVideo.addEventListener("loadeddata", tryPlay);
-    heroVideo.addEventListener("canplay", tryPlay);
-    heroVideo.addEventListener("playing", markPlaying);
-    heroVideo.addEventListener("loadedmetadata", () => {
-      try {
-        heroVideo.currentTime = 0.01;
-      } catch {
-        /* ignore */
-      }
-      tryPlay();
     });
-    heroVideo.addEventListener("timeupdate", keepLooping);
-    heroVideo.addEventListener("ended", () => {
-      heroVideo.currentTime = 0.01;
-      tryPlay();
-    });
+    heroVideo.addEventListener("ended", tryPlay);
     heroVideo.addEventListener("pause", () => {
       if (!document.hidden) tryPlay();
     });
+    heroVideo.addEventListener("error", () => {
+      if (media) media.classList.remove("is-playing");
+    });
 
-    try {
-      heroVideo.load();
-    } catch {
-      /* ignore */
+    if (heroVideo.readyState >= 2) {
+      markReady();
+      tryPlay();
+    } else {
+      tryPlay();
     }
-    tryPlay();
 
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) tryPlay();
     });
 
     const unlockMobile = () => tryPlay();
-    window.addEventListener("touchstart", unlockMobile, { passive: true });
-    window.addEventListener("click", unlockMobile);
+    window.addEventListener("touchstart", unlockMobile, { passive: true, once: true });
+    window.addEventListener("click", unlockMobile, { once: true });
     window.addEventListener("scroll", unlockMobile, { passive: true, once: true });
   }
 
