@@ -187,26 +187,14 @@
       return;
     }
 
-    if (window.InviteCard?.openWhatsappChat) {
-      window.InviteCard.openWhatsappChat(phone);
-    } else {
-      const digits = normalizeWhatsapp(phone);
-      if (digits) window.open(`https://wa.me/${digits}`, "_blank", "noopener,noreferrer");
-    }
-
-    if (!window.InviteCard?.buildGuestInviteCard) {
+    if (!window.InviteCard?.shareGuestInviteCard) {
       window.alert("Module invitation indisponible. Rafraîchissez la page.");
       return;
     }
 
-    window.InviteCard
-      .buildGuestInviteCard(guest)
-      .then(({ blob, filename }) => {
-        window.InviteCard.downloadBlob(blob, filename);
-      })
-      .catch((err) => {
-        window.alert(err?.message || "Impossible de préparer l’invitation PNG.");
-      });
+    window.InviteCard.shareGuestInviteCard(guest, phone).catch((err) => {
+      window.alert(err?.message || "Impossible d’envoyer l’invitation PNG.");
+    });
   }
 
   function renderGuests(guests) {

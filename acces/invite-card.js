@@ -165,6 +165,11 @@
     );
   }
 
+  function isMobileDevice() {
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "")
+      || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.userAgent || ""));
+  }
+
   function openWhatsappChat(phone) {
     const api = window.AccesAPI || {};
     const digits =
@@ -178,6 +183,24 @@
     return true;
   }
 
+  async function sharePngToApps(blob, filename, title) {
+    const buffer = await blob.arrayBuffer();
+    const file = new File([buffer], filename, { type: "image/png" });
+    if (typeof navigator.share !== "function") return false;
+    const payload = { files: [file], title: title || filename };
+    if (typeof navigator.canShare === "function") {
+      try {
+        if (!navigator.canShare(payload) && !navigator.canShare({ files: [file] })) {
+          return false;
+        }
+      } catch {
+        /* certains navigateurs jettent ici : on tente share quand même */
+      }
+    }
+    await navigator.share({ files: [file] });
+    return true;
+  }
+
   async function shareGuestInviteCard(guest, phoneOverride) {
     const api = window.AccesAPI || {};
     const phone =
@@ -188,12 +211,24 @@
       throw new Error("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
     }
 
-    // Ouvre WhatsApp sur le numéro de l’invité tout de suite (geste utilisateur)
-    openWhatsappChat(phone);
-
     const { blob, filename } = await buildGuestInviteCard(guest);
+    const title = String(guest?.nom || "Invitation").trim() || "Invitation";
+
+    if (isMobileDevice()) {
+      try {
+        const shared = await sharePngToApps(blob, filename, title);
+        if (shared) return { shared: true, downloaded: false, phone };
+      } catch (err) {
+        if (err?.name === "AbortError") return { shared: false, aborted: true, phone };
+      }
+      downloadBlob(blob, filename);
+      openWhatsappChat(phone);
+      return { shared: false, downloaded: true, phone };
+    }
+
     downloadBlob(blob, filename);
-    return { shared: true, downloaded: true, phone };
+    openWhatsappChat(phone);
+    return { shared: false, downloaded: true, phone };
   }
 
   window.InviteCard = {
@@ -204,4 +239,8 @@
     openWhatsappChat,
     downloadBlob,
   };
+
+  loadBaseImage().catch(() => {
+    baseImagePromise = null;
+  });
 })();
