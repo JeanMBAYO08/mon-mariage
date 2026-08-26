@@ -541,11 +541,33 @@
     syncWaFields();
   }
 
+  const WA_MESSAGE_TEMPLATE =
+    "Bonjour Parfaite & Jean,\n\n" +
+    "Je confirme ma présence à votre mariage.\n\n" +
+    "Nom : \n" +
+    "Événement : Mariage (invitation complète)\n" +
+    "Type d’invitation : Couple\n" +
+    "WhatsApp : ";
+
   if (waType) waType.addEventListener("change", syncWaFields);
   if (waEvenement) waEvenement.addEventListener("change", syncWaFields);
   syncWaFields();
 
+  function resetWaForm() {
+    if (waText) waText.value = WA_MESSAGE_TEMPLATE;
+    if (waNom) waNom.value = "";
+    if (waWhatsapp) waWhatsapp.value = "";
+    if (waCode) waCode.value = "";
+    if (waTable) waTable.value = "";
+    if (waEvenement) waEvenement.value = "soiree";
+    if (waType) waType.value = "couple";
+    syncWaFields();
+    fillWaFields(parseWhatsappDraft(WA_MESSAGE_TEMPLATE));
+  }
+
   if (waText) {
+    if (!String(waText.value || "").trim()) waText.value = WA_MESSAGE_TEMPLATE;
+    fillWaFields(parseWhatsappDraft(waText.value));
     waText.addEventListener("input", () => {
       fillWaFields(parseWhatsappDraft(waText.value || ""));
     });
@@ -592,14 +614,7 @@
         const result = await request(payload);
         if (!result?.ok) throw new Error(result?.error || "Échec");
         waMsg.textContent = `Ajouté : ${result.guest?.code || code || "QR créé"} · ${nom}`;
-        if (waText) waText.value = "";
-        if (waNom) waNom.value = "";
-        if (waWhatsapp) waWhatsapp.value = "";
-        if (waCode) waCode.value = "";
-        if (waTable) waTable.value = "";
-        if (waEvenement) waEvenement.value = "soiree";
-        if (waType) waType.value = "couple";
-        syncWaFields();
+        resetWaForm();
         await loadList();
       } catch (err) {
         waMsg.classList.add("is-error");
