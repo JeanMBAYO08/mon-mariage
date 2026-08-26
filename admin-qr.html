@@ -57,14 +57,14 @@ WhatsApp : </textarea>
         <label>
           Type
           <select id="wa-type" name="type">
-            <option value="singleton">Singleton</option>
-            <option value="couple" selected>Couple</option>
-            <option value="collectif">Collectif</option>
+            <option value="singleton">Singleton · 1 personne</option>
+            <option value="couple" selected>Couple · 2 personnes</option>
+            <option value="collectif">Collectif · à renseigner</option>
           </select>
         </label>
-        <label id="wa-count-wrap" hidden>
+        <label id="wa-count-wrap">
           Nombre de personnes
-          <input id="wa-count" name="personnes" type="number" min="3" max="50" placeholder="Ex. 5" />
+          <input id="wa-count" name="personnes" type="number" min="1" max="50" value="2" />
         </label>
         <label id="wa-table-wrap">
           Table
@@ -98,14 +98,14 @@ WhatsApp : </textarea>
         <label>
           Type
           <select name="type" id="admin-type">
-            <option value="singleton">Singleton</option>
-            <option value="couple" selected>Couple</option>
-            <option value="collectif">Collectif</option>
+            <option value="singleton">Singleton · 1 personne</option>
+            <option value="couple" selected>Couple · 2 personnes</option>
+            <option value="collectif">Collectif · à renseigner</option>
           </select>
         </label>
-        <label id="admin-count-wrap" hidden>
+        <label id="admin-count-wrap">
           Nombre de personnes
-          <input name="personnes" id="admin-count" type="number" min="3" max="50" placeholder="Ex. 5" />
+          <input name="personnes" id="admin-count" type="number" min="1" max="50" value="2" />
         </label>
         <label>
           Table <span class="opt">(langage / framework)</span>

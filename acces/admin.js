@@ -35,11 +35,34 @@
   fillTableSelect(tableSelect);
   fillTableSelect(document.getElementById("wa-table"));
 
-  function syncCount() {
-    const isCollectif = typeSelect.value === "collectif";
-    countWrap.hidden = !isCollectif;
+  function personnesForType(type, raw) {
+    const t = String(type || "singleton").toLowerCase();
+    if (t === "singleton") return 1;
+    if (t === "couple") return 2;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : "";
+  }
+
+  function syncPersonnesField(typeEl, countWrap, countInput) {
+    if (!typeEl || !countInput) return;
+    const type = typeEl.value;
+    const isCollectif = type === "collectif";
+    if (countWrap) countWrap.hidden = false;
     countInput.required = isCollectif;
-    if (!isCollectif) countInput.value = "";
+    countInput.readOnly = !isCollectif;
+    countInput.min = isCollectif ? "3" : "1";
+    if (isCollectif) {
+      const n = Number(countInput.value);
+      if (!n || n < 3) countInput.value = "";
+      countInput.placeholder = "À renseigner (min. 3)";
+    } else {
+      countInput.placeholder = "";
+      countInput.value = String(personnesForType(type));
+    }
+  }
+
+  function syncCount() {
+    syncPersonnesField(typeSelect, countWrap, countInput);
   }
 
   function syncEvenementForm() {
@@ -519,9 +542,7 @@
   const waCode = document.getElementById("wa-code");
 
   function syncWaFields() {
-    const isCollectif = waType?.value === "collectif";
-    if (waCountWrap) waCountWrap.hidden = !isCollectif;
-    if (waCount) waCount.required = isCollectif;
+    syncPersonnesField(waType, waCountWrap, waCount);
     const isCivil = normalizeEvenement(waEvenement?.value) === "civil";
     if (waTableWrap) waTableWrap.hidden = isCivil;
     if (isCivil && waTable) waTable.value = "";
@@ -533,12 +554,14 @@
     if (waWhatsapp && draft.whatsapp) waWhatsapp.value = draft.whatsapp;
     if (waEvenement && draft.evenement) waEvenement.value = draft.evenement;
     if (waType && draft.type) waType.value = draft.type;
-    if (waCount && draft.personnes) waCount.value = draft.personnes;
     if (waCode) waCode.value = draft.code || "";
     if (waTable && draft.table) {
       fillTableSelect(waTable, draft.table);
     }
     syncWaFields();
+    if (waCount && draft.type === "collectif" && draft.personnes) {
+      waCount.value = draft.personnes;
+    }
   }
 
   const WA_MESSAGE_TEMPLATE =
@@ -583,7 +606,7 @@
       const whatsapp = formatWhatsappIntl(String(waWhatsapp?.value || "").trim());
       const evenement = normalizeEvenement(waEvenement?.value || "soiree");
       const type = String(waType?.value || "couple");
-      const personnes = String(waCount?.value || "");
+      const personnes = personnesForType(type, waCount?.value);
       const table = evenement === "civil" ? "" : String(waTable?.value || "").trim();
       const code = String(waCode?.value || "")
         .trim()
@@ -594,6 +617,12 @@
         waMsg.classList.add("is-error");
         waMsg.textContent = "Indique le nom, puis ajoute.";
         waNom?.focus();
+        return;
+      }
+      if (type === "collectif" && !(Number(personnes) >= 3)) {
+        waMsg.classList.add("is-error");
+        waMsg.textContent = "Pour un collectif, indique le nombre de personnes (min. 3).";
+        waCount?.focus();
         return;
       }
 
@@ -630,13 +659,20 @@
 
     const data = new FormData(form);
     const nom = String(data.get("nom") || "").trim();
-    const type = String(data.get("type") || "singleton");
+    const type = String(data.get("type") || "couple");
     const evenement = normalizeEvenement(data.get("evenement") || "soiree");
-    const personnes = String(data.get("personnes") || "");
+    const personnes = personnesForType(type, data.get("personnes"));
     const table = evenement === "civil" ? "" : String(data.get("table") || "").trim();
     const whatsapp = formatWhatsappIntl(String(data.get("whatsapp") || "").trim());
     const notes = String(data.get("notes") || "").trim() || "Ajout manuel";
     const statut = String(data.get("statut") || "confirme").trim().toLowerCase() || "confirme";
+
+    if (type === "collectif" && !(Number(personnes) >= 3)) {
+      msg.classList.add("is-error");
+      msg.textContent = "Pour un collectif, indique le nombre de personnes (min. 3).";
+      countInput?.focus();
+      return;
+    }
 
     try {
       const result = await request({

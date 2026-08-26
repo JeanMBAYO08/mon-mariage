@@ -255,16 +255,9 @@ select:focus {
   gap: 0.85rem;
 }
 
-.admin-form textarea {
-  width: 100%;
-  min-height: 10rem;
-  resize: vertical;
-  font: inherit;
-  line-height: 1.45;
-  color: inherit;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  padding: 0.75rem 0.85rem;
+.admin-form input[readonly] {
+  opacity: 0.75;
+  cursor: default;
 }
 
 .wa-preview {
