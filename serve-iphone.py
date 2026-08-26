@@ -271,6 +271,8 @@ RSVP_DEADLINE = os.environ.get("RSVP_DEADLINE", "2026-08-25T23:59:59+01:00")
 
 
 def rsvp_open(now: datetime | None = None) -> bool:
+    if os.environ.get("RSVP_MANUAL_ONLY", "1") != "0":
+        return False
     current = now or datetime.now().astimezone()
     try:
         deadline = datetime.fromisoformat(RSVP_DEADLINE)
@@ -535,7 +537,7 @@ class Handler(SimpleHTTPRequestHandler):
                     return self._json(
                         {
                             "ok": False,
-                            "error": "Les confirmations sont closes depuis le 25 août 2026.",
+                            "error": "Les confirmations en ligne sont closes. L’ajout se fait uniquement depuis l’admin.",
                             "closed": True,
                         },
                         403,

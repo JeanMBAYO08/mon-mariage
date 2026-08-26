@@ -304,6 +304,7 @@
   }
 
   function isRsvpOpen(now = new Date()) {
+    if (cfg.RSVP_MANUAL_ONLY) return false;
     return now.getTime() <= rsvpDeadline().getTime();
   }
 
