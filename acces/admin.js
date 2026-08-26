@@ -34,6 +34,8 @@
 
   fillTableSelect(tableSelect);
   fillTableSelect(document.getElementById("wa-table"));
+
+  function syncCount() {
     const isCollectif = typeSelect.value === "collectif";
     countWrap.hidden = !isCollectif;
     countInput.required = isCollectif;
