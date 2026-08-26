@@ -33,8 +33,7 @@
   const saveTimers = new Map();
 
   fillTableSelect(tableSelect);
-
-  function syncCount() {
+  fillTableSelect(document.getElementById("wa-table"));
     const isCollectif = typeSelect.value === "collectif";
     countWrap.hidden = !isCollectif;
     countInput.required = isCollectif;
@@ -462,72 +461,91 @@
     return { type: "singleton", personnes: "1" };
   }
 
-  function parseWhatsappMessages(raw) {
+  function extractPhoneFromText(text) {
+    const labeled =
+      fieldFromText(text, "WhatsApp") ||
+      fieldFromText(text, "Téléphone|Telephone|Tel|Tél");
+    if (labeled) return formatWhatsappIntl(labeled);
+    const match = String(text || "").match(/(?:\+|00)?(?:243|32|33|1)?[\s./-]*\d[\d\s./-]{7,}/);
+    return formatWhatsappIntl(match?.[0] || "");
+  }
+
+  function extractNameFromText(text) {
+    const labeled = fieldFromText(text, "Nom(?:\\s+complet)?");
+    if (labeled) return labeled.replace(/\s+/g, " ").trim();
+    const lines = String(text || "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .filter(
+        (line) =>
+          !/^(bonjour|je confirme|merci|événement|evenement|type|whatsapp|téléphone|telephone|code|billet|table|remarque)/i.test(
+            line
+          )
+      );
+    return lines[0] || "";
+  }
+
+  function parseWhatsappDraft(raw) {
     const text = String(raw || "").replace(/\r\n/g, "\n").trim();
-    if (!text) return [];
-
-    let chunks = text.split(/\n(?=Bonjour\s+Parfaite)/i).map((c) => c.trim()).filter(Boolean);
-    if (chunks.length <= 1) {
-      chunks = text
-        .split(/\n\s*-{3,}\s*\n/)
-        .map((c) => c.trim())
-        .filter(Boolean);
-    }
-    if (chunks.length <= 1 && (text.match(/\nNom\s*[:：]/gi) || []).length > 1) {
-      chunks = text.split(/\n(?=Nom\s*[:：])/i).map((c) => c.trim()).filter(Boolean);
-    }
-
-    return chunks
-      .map((chunk) => {
-        const nom = fieldFromText(chunk, "Nom");
-        if (!nom) return null;
-        const eventRaw = fieldFromText(chunk, "Événement|Evenement");
-        const evenement = /civil/i.test(eventRaw) ? "civil" : "soiree";
-        const typeRaw =
-          fieldFromText(chunk, "Type d[’']invitation") ||
-          fieldFromText(chunk, "Type");
-        const { type, personnes } = parseInviteType(typeRaw);
-        const whatsapp = formatWhatsappIntl(
-          fieldFromText(chunk, "WhatsApp") || fieldFromText(chunk, "Téléphone|Telephone")
-        );
-        const code = extractCodeFromChunk(chunk);
-        return {
-          nom,
-          evenement,
-          type,
-          personnes,
-          whatsapp,
-          code,
-          notes: "Récupéré depuis WhatsApp",
-          statut: "confirme",
-        };
-      })
-      .filter(Boolean);
+    if (!text) return null;
+    const eventRaw = fieldFromText(text, "Événement|Evenement") || text;
+    const typeRaw =
+      fieldFromText(text, "Type d[’']invitation") ||
+      fieldFromText(text, "Type") ||
+      text;
+    const { type, personnes } = parseInviteType(typeRaw);
+    return {
+      nom: extractNameFromText(text),
+      evenement: /civil/i.test(eventRaw) ? "civil" : "soiree",
+      type,
+      personnes,
+      whatsapp: extractPhoneFromText(text),
+      code: extractCodeFromChunk(text),
+      table: fieldFromText(text, "Table"),
+    };
   }
 
-  const waPreview = document.getElementById("wa-import-preview");
+  const waNom = document.getElementById("wa-nom");
+  const waWhatsapp = document.getElementById("wa-whatsapp");
+  const waEvenement = document.getElementById("wa-evenement");
+  const waType = document.getElementById("wa-type");
+  const waCountWrap = document.getElementById("wa-count-wrap");
+  const waCount = document.getElementById("wa-count");
+  const waTableWrap = document.getElementById("wa-table-wrap");
+  const waTable = document.getElementById("wa-table");
+  const waCode = document.getElementById("wa-code");
 
-  function renderWaPreview(parsed) {
-    if (!waPreview) return;
-    if (!parsed.length) {
-      waPreview.hidden = true;
-      waPreview.innerHTML = "";
-      return;
-    }
-    waPreview.hidden = false;
-    waPreview.innerHTML = `<p class="wa-preview-title">${parsed.length} confirmation(s) détectée(s)</p><ul>${parsed
-      .map((g) => {
-        const codeLabel = g.code || "nouveau QR auto";
-        return `<li><strong>${g.nom}</strong> · ${codeLabel} · ${g.whatsapp || "sans WhatsApp"} · ${
-          g.evenement === "civil" ? "civil" : "soirée"
-        }</li>`;
-      })
-      .join("")}</ul>`;
+  function syncWaFields() {
+    const isCollectif = waType?.value === "collectif";
+    if (waCountWrap) waCountWrap.hidden = !isCollectif;
+    if (waCount) waCount.required = isCollectif;
+    const isCivil = normalizeEvenement(waEvenement?.value) === "civil";
+    if (waTableWrap) waTableWrap.hidden = isCivil;
+    if (isCivil && waTable) waTable.value = "";
   }
+
+  function fillWaFields(draft) {
+    if (!draft) return;
+    if (waNom && draft.nom) waNom.value = draft.nom;
+    if (waWhatsapp && draft.whatsapp) waWhatsapp.value = draft.whatsapp;
+    if (waEvenement && draft.evenement) waEvenement.value = draft.evenement;
+    if (waType && draft.type) waType.value = draft.type;
+    if (waCount && draft.personnes) waCount.value = draft.personnes;
+    if (waCode) waCode.value = draft.code || "";
+    if (waTable && draft.table) {
+      fillTableSelect(waTable, draft.table);
+    }
+    syncWaFields();
+  }
+
+  if (waType) waType.addEventListener("change", syncWaFields);
+  if (waEvenement) waEvenement.addEventListener("change", syncWaFields);
+  syncWaFields();
 
   if (waText) {
     waText.addEventListener("input", () => {
-      renderWaPreview(parseWhatsappMessages(waText.value || ""));
+      fillWaFields(parseWhatsappDraft(waText.value || ""));
     });
   }
 
@@ -536,52 +554,55 @@
       event.preventDefault();
       if (!waMsg) return;
       waMsg.classList.remove("is-error");
-      const parsed = parseWhatsappMessages(waText?.value || "");
-      renderWaPreview(parsed);
-      if (!parsed.length) {
+
+      const nom = String(waNom?.value || "").trim();
+      const whatsapp = formatWhatsappIntl(String(waWhatsapp?.value || "").trim());
+      const evenement = normalizeEvenement(waEvenement?.value || "soiree");
+      const type = String(waType?.value || "couple");
+      const personnes = String(waCount?.value || "");
+      const table = evenement === "civil" ? "" : String(waTable?.value || "").trim();
+      const code = String(waCode?.value || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, "");
+
+      if (!nom) {
         waMsg.classList.add("is-error");
-        waMsg.textContent =
-          "Aucun message reconnu. Colle un message avec au moins « Nom : … » et « WhatsApp : … ».";
+        waMsg.textContent = "Indique le nom, puis ajoute.";
+        waNom?.focus();
         return;
       }
 
-      waMsg.textContent = `Import de ${parsed.length} confirmation(s)…`;
-      const ok = [];
-      const fail = [];
-
-      for (const guest of parsed) {
-        try {
-          if (!guest.whatsapp) throw new Error("WhatsApp manquant");
-          const payload = {
-            action: "add",
-            nom: guest.nom,
-            type: guest.type,
-            personnes: guest.personnes,
-            whatsapp: guest.whatsapp,
-            notes: guest.notes,
-            evenement: guest.evenement,
-            statut: guest.statut,
-          };
-          if (guest.code) payload.code = guest.code;
-          const result = await request(payload);
-          if (!result?.ok) throw new Error(result?.error || "Échec");
-          const savedCode = result.guest?.code || guest.code || "?";
-          ok.push(`${guest.nom} → ${savedCode}`);
-        } catch (err) {
-          fail.push(`${guest.nom}: ${err.message || "erreur"}`);
-        }
+      waMsg.textContent = "Ajout…";
+      try {
+        const payload = {
+          action: "add",
+          nom,
+          type,
+          personnes,
+          table,
+          whatsapp,
+          notes: "Ajout manuel / WhatsApp",
+          evenement,
+          statut: "confirme",
+        };
+        if (/^PJ-[A-Z0-9]{6}$/.test(code)) payload.code = code;
+        const result = await request(payload);
+        if (!result?.ok) throw new Error(result?.error || "Échec");
+        waMsg.textContent = `Ajouté : ${result.guest?.code || code || "QR créé"} · ${nom}`;
+        if (waText) waText.value = "";
+        if (waNom) waNom.value = "";
+        if (waWhatsapp) waWhatsapp.value = "";
+        if (waCode) waCode.value = "";
+        if (waTable) waTable.value = "";
+        if (waEvenement) waEvenement.value = "soiree";
+        if (waType) waType.value = "couple";
+        syncWaFields();
+        await loadList();
+      } catch (err) {
+        waMsg.classList.add("is-error");
+        waMsg.textContent = err.message || "Erreur lors de l’ajout.";
       }
-
-      await loadList();
-      if (ok.length && waText) {
-        waText.value = "";
-        renderWaPreview([]);
-      }
-      const parts = [];
-      if (ok.length) parts.push(`${ok.length} ajouté(s) avec QR : ${ok.join(" · ")}`);
-      if (fail.length) parts.push(`${fail.length} échec(s) : ${fail.join(" · ")}`);
-      waMsg.classList.toggle("is-error", ok.length === 0);
-      waMsg.textContent = parts.join(" | ");
     });
   }
 
