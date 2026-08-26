@@ -165,6 +165,19 @@
     );
   }
 
+  function openWhatsappChat(phone) {
+    const api = window.AccesAPI || {};
+    const digits =
+      typeof api.normalizeWhatsapp === "function"
+        ? api.normalizeWhatsapp(phone)
+        : String(phone || "").replace(/\D/g, "");
+    if (!digits) return false;
+    const url = `https://wa.me/${digits}`;
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    if (!opened) window.location.assign(url);
+    return true;
+  }
+
   async function shareGuestInviteCard(guest, phoneOverride) {
     const api = window.AccesAPI || {};
     const phone =
@@ -175,24 +188,12 @@
       throw new Error("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
     }
 
+    // Ouvre WhatsApp sur le numéro de l’invité tout de suite (geste utilisateur)
+    openWhatsappChat(phone);
+
     const { blob, filename } = await buildGuestInviteCard(guest);
-    const file = new File([blob], filename, { type: "image/png" });
-
-    // Image seule — aucun message texte
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file] });
-      return { shared: true, downloaded: false };
-    }
-
     downloadBlob(blob, filename);
-    const digits =
-      typeof api.normalizeWhatsapp === "function"
-        ? api.normalizeWhatsapp(phone)
-        : String(phone).replace(/\D/g, "");
-    if (digits) {
-      window.open(`https://wa.me/${digits}`, "_blank", "noopener,noreferrer");
-    }
-    return { shared: false, downloaded: true };
+    return { shared: true, downloaded: true, phone };
   }
 
   window.InviteCard = {
@@ -200,6 +201,7 @@
     buildGuestInviteCard,
     guestConfirmCardMessage,
     shareGuestInviteCard,
+    openWhatsappChat,
     downloadBlob,
   };
 })();

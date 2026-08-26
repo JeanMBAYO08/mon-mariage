@@ -187,24 +187,26 @@
       return;
     }
 
-    const run = async () => {
-      if (!window.InviteCard?.shareGuestInviteCard) {
-        window.alert("Module invitation indisponible. Rafraîchissez la page.");
-        return;
-      }
-      try {
-        const result = await window.InviteCard.shareGuestInviteCard(guest, phone);
-        if (result?.downloaded) {
-          window.alert(
-            "Photo d’invitation téléchargée.\nJoignez uniquement cette image dans WhatsApp (sans texte)."
-          );
-        }
-      } catch (err) {
-        window.alert(err?.message || "Impossible de préparer l’invitation.");
-      }
-    };
+    if (window.InviteCard?.openWhatsappChat) {
+      window.InviteCard.openWhatsappChat(phone);
+    } else {
+      const digits = normalizeWhatsapp(phone);
+      if (digits) window.open(`https://wa.me/${digits}`, "_blank", "noopener,noreferrer");
+    }
 
-    run();
+    if (!window.InviteCard?.buildGuestInviteCard) {
+      window.alert("Module invitation indisponible. Rafraîchissez la page.");
+      return;
+    }
+
+    window.InviteCard
+      .buildGuestInviteCard(guest)
+      .then(({ blob, filename }) => {
+        window.InviteCard.downloadBlob(blob, filename);
+      })
+      .catch((err) => {
+        window.alert(err?.message || "Impossible de préparer l’invitation PNG.");
+      });
   }
 
   function renderGuests(guests) {
