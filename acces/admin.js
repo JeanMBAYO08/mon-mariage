@@ -187,6 +187,12 @@
       return;
     }
 
+    const ok = window.confirm(
+      `Envoyer l’image PNG à ${guest.nom || "cet invité"} (${phone}) ?\n\n` +
+        `Choisis WhatsApp, puis ce contact. C’est le fichier image qui part, pas un lien.`
+    );
+    if (!ok) return;
+
     if (!window.InviteCard?.shareGuestInviteCard) {
       window.alert("Module invitation indisponible. Rafraîchissez la page.");
       return;
