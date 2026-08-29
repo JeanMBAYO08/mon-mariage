@@ -111,7 +111,8 @@
     const blob = await new Promise((resolve, reject) => {
       canvas.toBlob(
         (b) => (b ? resolve(b) : reject(new Error("Export image impossible"))),
-        "image/png"
+        "image/jpeg",
+        0.9
       );
     });
 
@@ -121,8 +122,9 @@
       .replace(/[^a-zA-Z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
       .slice(0, 40);
-    const filename = `invitation-${safeName || guest?.code || "invite"}.png`;
-    return { blob, filename, canvas };
+    const filename = `invitation-${safeName || guest?.code || "invite"}.jpg`;
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+    return { blob, filename, canvas, dataUrl };
   }
 
   function downloadBlob(blob, filename) {
@@ -183,19 +185,20 @@
     return true;
   }
 
-  async function sharePngFile(blob, filename) {
-    const buffer = await blob.arrayBuffer();
-    const file = new File([buffer], filename, { type: "image/png" });
-    if (typeof navigator.share !== "function") return false;
-    if (typeof navigator.canShare === "function") {
-      try {
-        if (!navigator.canShare({ files: [file] })) return false;
-      } catch {
-        /* tenter quand même */
-      }
+  async function uploadInviteCard(guest, dataUrl) {
+    const res = await fetch("/api/invite-card", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: guest?.code || "",
+        image: dataUrl,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "Envoi du lien impossible");
     }
-    await navigator.share({ files: [file] });
-    return true;
+    return `${window.location.origin}${data.imageUrl}`;
   }
 
   async function shareGuestInviteCard(guest, phoneOverride) {
@@ -212,20 +215,17 @@
       throw new Error("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
     }
 
-    const { blob, filename } = await buildGuestInviteCard(guest);
+    const { dataUrl } = await buildGuestInviteCard(guest);
+    const imageUrl = await uploadInviteCard(guest, dataUrl);
+    const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(imageUrl)}`;
 
     if (isMobileDevice()) {
-      try {
-        const shared = await sharePngFile(blob, filename);
-        if (shared) return { shared: true, phone: `+${digits}` };
-      } catch (err) {
-        if (err?.name === "AbortError") return { shared: false, aborted: true, phone: `+${digits}` };
-      }
+      window.location.assign(waUrl);
+    } else {
+      const opened = window.open(waUrl, "_blank", "noopener,noreferrer");
+      if (!opened) window.location.assign(waUrl);
     }
-
-    downloadBlob(blob, filename);
-    openWhatsappChat(`+${digits}`);
-    return { shared: false, downloaded: true, phone: `+${digits}` };
+    return { shared: true, phone: `+${digits}`, imageUrl };
   }
 
   window.InviteCard = {
