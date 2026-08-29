@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invitation — Parfaite & Jean</title>
+  <meta property="og:title" content="Invitation — Parfaite & Jean" />
+  <meta property="og:type" content="website" />
+  <meta id="og-image" property="og:image" content="" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <style>
+    html, body { margin: 0; background: #1c120c; min-height: 100%; }
+    img { display: block; width: min(100%, 720px); height: auto; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <img id="card" alt="Invitation Parfaite & Jean" />
+  <script>
+    const code = new URLSearchParams(location.search).get("code") || "";
+    const src = "/api/invite-card?code=" + encodeURIComponent(code);
+    document.getElementById("card").src = src;
+    document.getElementById("og-image").setAttribute("content", location.origin + src);
+  </script>
+</body>
+</html>

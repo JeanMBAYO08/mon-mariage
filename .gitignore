@@ -6,3 +6,4 @@ node_modules/
 acces/certs/
 *.pem
 .env*
+data/cards/

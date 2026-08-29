@@ -8,6 +8,7 @@ import json
 import os
 import random
 import re
+import base64
 import socket
 import ssl
 import subprocess
@@ -22,6 +23,7 @@ CERT = CERT_DIR / "cert.pem"
 KEY = CERT_DIR / "key.pem"
 CONFIG = ROOT / "acces" / "config.js"
 DATA_DIR = ROOT / "data"
+CARDS_DIR = DATA_DIR / "cards"
 INVITES_JSON = DATA_DIR / "invites.json"
 INVITES_CSV = DATA_DIR / "invites.csv"
 PORT = int(os.environ.get("PORT", "5173"))
@@ -521,6 +523,20 @@ class Handler(SimpleHTTPRequestHandler):
             self.wfile.write(data)
             return
 
+        if path == "/api/invite-card":
+            q = self._parse_qs()
+            code = re.sub(r"[^A-Z0-9-]", "", str(q.get("code") or "").upper())
+            card = CARDS_DIR / f"{code}.jpg"
+            if not code or not card.exists():
+                return self._json({"ok": False, "error": "Image introuvable"}, 404)
+            data = card.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "image/jpeg")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
         if self._serve_file_with_range(path):
             return
 
@@ -552,6 +568,24 @@ class Handler(SimpleHTTPRequestHandler):
 
         if path == "/api/delete":
             return self._json(delete_guest(payload))
+
+        if path == "/api/invite-card":
+            code = re.sub(r"[^A-Z0-9-]", "", str(payload.get("code") or "").upper())
+            raw = str(payload.get("image") or "")
+            match = re.match(r"data:image/\w+;base64,(.+)$", raw)
+            b64 = match.group(1) if match else raw
+            if not code or not b64:
+                return self._json({"ok": False, "error": "Code et image requis"}, 400)
+            CARDS_DIR.mkdir(parents=True, exist_ok=True)
+            (CARDS_DIR / f"{code}.jpg").write_bytes(base64.b64decode(b64))
+            return self._json(
+                {
+                    "ok": True,
+                    "code": code,
+                    "imageUrl": f"/api/invite-card?code={code}",
+                    "viewUrl": f"/carte-invite.html?code={code}",
+                }
+            )
 
         if path == "/api/checkin":
             return self._json(checkin_code(payload.get("code", "")))
