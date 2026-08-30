@@ -12,7 +12,6 @@
     formatWhatsappIntl,
     normalizeEvenement,
     evenementLabel,
-    inviteTypeLabel,
   } = window.AccesAPI;
   const form = document.getElementById("add-form");
   const waForm = document.getElementById("wa-import-form");
@@ -30,7 +29,6 @@
   const filterTable = document.getElementById("filter-table");
   const filterEvenement = document.getElementById("filter-evenement");
   const filterType = document.getElementById("filter-type");
-  const rosterBody = document.querySelector("#guest-roster tbody");
 
   let allGuests = [];
   const saveTimers = new Map();
@@ -116,22 +114,6 @@
       filterTable.appendChild(option);
     });
     filterTable.value = opts.some(([v]) => v === current) ? current : "all";
-  }
-
-  function typeLabelOf(guest) {
-    if (typeof inviteTypeLabel === "function") return inviteTypeLabel(guest?.type);
-    const type = String(guest?.type || "").toLowerCase();
-    if (type === "couple") return "Couple";
-    if (type === "collectif") return "Collectif";
-    if (type === "singleton") return "Singleton";
-    return guest?.type || "—";
-  }
-
-  function tableLabelOf(guest) {
-    const evenement = normalizeEvenement(guest?.evenement);
-    const tableRaw = String(guest?.table || "").trim();
-    if (tableRaw) return tableLabel(tableRaw);
-    return evenement === "civil" ? "Cérémonie civile" : "—";
   }
 
   function filteredGuests() {
@@ -220,25 +202,8 @@
     });
   }
 
-  function renderRoster(guests) {
-    if (!rosterBody) return;
-    rosterBody.innerHTML = "";
-    guests.forEach((guest) => {
-      const tr = document.createElement("tr");
-      const nom = document.createElement("td");
-      nom.textContent = guest.nom || "—";
-      const type = document.createElement("td");
-      type.textContent = typeLabelOf(guest);
-      const table = document.createElement("td");
-      table.textContent = tableLabelOf(guest);
-      tr.append(nom, type, table);
-      rosterBody.appendChild(tr);
-    });
-  }
-
   function renderGuests(guests) {
     grid.innerHTML = "";
-    renderRoster(guests);
     if (!guests.length) {
       listStatus.textContent =
         allGuests.length === 0
