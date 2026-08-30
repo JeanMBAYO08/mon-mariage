@@ -4,6 +4,7 @@
     tableLabel,
     fillTableSelect,
     tableNames,
+    inviteTypeLabel,
   } = window.AccesAPI;
 
   const rosterBody = document.querySelector("#guest-roster tbody");
@@ -14,6 +15,32 @@
   const filterTable = document.getElementById("filter-table");
 
   let allGuests = [];
+  let editingCode = "";
+
+  function typeLabelOf(type) {
+    if (typeof inviteTypeLabel === "function") return inviteTypeLabel(type);
+    if (type === "couple") return "Couple";
+    if (type === "collectif") return "Collectif";
+    if (type === "singleton") return "Singleton";
+    return type || "—";
+  }
+
+  function iconButton(className, label, svg) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = className;
+    btn.title = label;
+    btn.setAttribute("aria-label", label);
+    btn.innerHTML = svg;
+    return btn;
+  }
+
+  const ICON_EDIT =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 15.5V20h4.5l10.2-10.2-4.5-4.5L4 15.5Zm15.7-8.3c.4-.4.4-1 0-1.4l-3.5-3.5c-.4-.4-1-.4-1.4 0l-1.8 1.8 4.5 4.5 2.2-1.4Z"/></svg>';
+  const ICON_SAVE =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.2 16.6 4.8 12.2l-1.4 1.4 5.8 5.8L21 7.6l-1.4-1.4-10.4 10.4Z"/></svg>';
+  const ICON_CANCEL =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z"/></svg>';
 
   function sortGuests(guests) {
     return [...guests].sort((a, b) =>
@@ -86,14 +113,13 @@
     };
   }
 
-  async function saveRow(guest, tr, btn) {
+  async function saveRow(guest, tr, saveBtn) {
     const next = rowValues(tr);
     if (!next.nom) {
       window.alert("Le nom est obligatoire.");
       return;
     }
-    btn.disabled = true;
-    btn.textContent = "…";
+    saveBtn.disabled = true;
     try {
       const result = await request({
         action: "update",
@@ -104,17 +130,42 @@
       });
       if (!result.ok) throw new Error(result.error || "Enregistrement impossible");
       allGuests = allGuests.map((g) => (g.code === result.guest.code ? result.guest : g));
+      editingCode = "";
       fillTableFilter(allGuests);
       paint();
     } catch (err) {
       window.alert(err?.message || "Modification impossible.");
-      btn.disabled = false;
-      btn.textContent = "Enregistrer";
+      saveBtn.disabled = false;
     }
   }
 
-  function renderRow(guest) {
+  function renderViewRow(guest) {
     const tr = document.createElement("tr");
+    const nom = document.createElement("td");
+    nom.textContent = guest.nom || "—";
+    const type = document.createElement("td");
+    type.textContent = typeLabelOf(guest.type);
+    const table = document.createElement("td");
+    table.textContent = guest.table ? tableLabel(guest.table) : "—";
+    const action = document.createElement("td");
+    action.className = "guest-row-actions";
+    const editBtn = iconButton(
+      "btn-icon btn-icon-edit",
+      `Modifier ${guest.nom || "l’invité"}`,
+      ICON_EDIT
+    );
+    editBtn.addEventListener("click", () => {
+      editingCode = guest.code;
+      paint();
+    });
+    action.appendChild(editBtn);
+    tr.append(nom, type, table, action);
+    return tr;
+  }
+
+  function renderEditRow(guest) {
+    const tr = document.createElement("tr");
+    tr.className = "is-editing";
 
     const nomTd = document.createElement("td");
     const nomInput = document.createElement("input");
@@ -137,15 +188,23 @@
     tableTd.appendChild(tableSelect);
 
     const actionTd = document.createElement("td");
-    const saveBtn = document.createElement("button");
-    saveBtn.type = "button";
-    saveBtn.className = "btn btn-gold btn-row-save";
-    saveBtn.textContent = "Enregistrer";
+    actionTd.className = "guest-row-actions";
+    const saveBtn = iconButton("btn-icon btn-icon-save", "Enregistrer", ICON_SAVE);
+    const cancelBtn = iconButton("btn-icon btn-icon-cancel", "Annuler", ICON_CANCEL);
     saveBtn.addEventListener("click", () => saveRow(guest, tr, saveBtn));
-    actionTd.appendChild(saveBtn);
+    cancelBtn.addEventListener("click", () => {
+      editingCode = "";
+      paint();
+    });
+    actionTd.append(saveBtn, cancelBtn);
 
     tr.append(nomTd, typeTd, tableTd, actionTd);
+    window.setTimeout(() => nomInput.focus(), 0);
     return tr;
+  }
+
+  function renderRow(guest) {
+    return guest.code === editingCode ? renderEditRow(guest) : renderViewRow(guest);
   }
 
   function paint() {

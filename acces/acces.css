@@ -526,10 +526,42 @@ select:focus {
   padding: 0.5rem 0.6rem;
 }
 
-.guest-roster-edit .btn-row-save {
-  width: 100%;
-  min-width: 7.5rem;
-  padding: 0.5rem 0.7rem;
+.guest-roster-edit .guest-row-actions {
+  width: 4.5rem;
+  white-space: nowrap;
+}
+
+.guest-roster-edit .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin: 0 0.1rem;
+  padding: 0;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--gold-soft);
+  cursor: pointer;
+}
+
+.guest-roster-edit .btn-icon svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.guest-roster-edit .btn-icon-edit:hover,
+.guest-roster-edit .btn-icon-save:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+  color: var(--gold);
+}
+
+.guest-roster-edit .btn-icon-cancel {
+  color: rgba(245, 239, 228, 0.7);
+}
+
+.guest-roster-edit tr.is-editing td {
+  background: rgba(212, 175, 55, 0.06);
 }
 
 .list-filters input[type="search"] {
