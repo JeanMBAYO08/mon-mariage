@@ -326,5 +326,6 @@
     formatWhatsappIntl,
     whatsappShareUrl,
     guestTicketMessage,
+    inviteTypeLabel,
   };
 })();

@@ -12,6 +12,7 @@
     formatWhatsappIntl,
     normalizeEvenement,
     evenementLabel,
+    inviteTypeLabel,
   } = window.AccesAPI;
   const form = document.getElementById("add-form");
   const waForm = document.getElementById("wa-import-form");
@@ -28,6 +29,8 @@
   const btnRefresh = document.getElementById("btn-refresh");
   const filterTable = document.getElementById("filter-table");
   const filterEvenement = document.getElementById("filter-evenement");
+  const filterType = document.getElementById("filter-type");
+  const rosterBody = document.querySelector("#guest-roster tbody");
 
   let allGuests = [];
   const saveTimers = new Map();
@@ -115,12 +118,32 @@
     filterTable.value = opts.some(([v]) => v === current) ? current : "all";
   }
 
+  function typeLabelOf(guest) {
+    if (typeof inviteTypeLabel === "function") return inviteTypeLabel(guest?.type);
+    const type = String(guest?.type || "").toLowerCase();
+    if (type === "couple") return "Couple";
+    if (type === "collectif") return "Collectif";
+    if (type === "singleton") return "Singleton";
+    return guest?.type || "—";
+  }
+
+  function tableLabelOf(guest) {
+    const evenement = normalizeEvenement(guest?.evenement);
+    const tableRaw = String(guest?.table || "").trim();
+    if (tableRaw) return tableLabel(tableRaw);
+    return evenement === "civil" ? "Cérémonie civile" : "—";
+  }
+
   function filteredGuests() {
     const mode = filterTable.value || "all";
     const eventMode = filterEvenement?.value || "all";
+    const typeMode = filterType?.value || "all";
     let list = allGuests;
     if (eventMode !== "all") {
       list = list.filter((g) => normalizeEvenement(g.evenement) === eventMode);
+    }
+    if (typeMode !== "all") {
+      list = list.filter((g) => String(g.type || "").toLowerCase() === typeMode);
     }
     if (mode === "all") return list;
     if (mode === "none") return list.filter((g) => !String(g.table || "").trim());
@@ -197,8 +220,25 @@
     });
   }
 
+  function renderRoster(guests) {
+    if (!rosterBody) return;
+    rosterBody.innerHTML = "";
+    guests.forEach((guest) => {
+      const tr = document.createElement("tr");
+      const nom = document.createElement("td");
+      nom.textContent = guest.nom || "—";
+      const type = document.createElement("td");
+      type.textContent = typeLabelOf(guest);
+      const table = document.createElement("td");
+      table.textContent = tableLabelOf(guest);
+      tr.append(nom, type, table);
+      rosterBody.appendChild(tr);
+    });
+  }
+
   function renderGuests(guests) {
     grid.innerHTML = "";
+    renderRoster(guests);
     if (!guests.length) {
       listStatus.textContent =
         allGuests.length === 0
@@ -209,7 +249,10 @@
 
     const withTable = allGuests.filter((g) => String(g.table || "").trim()).length;
     const civilCount = allGuests.filter((g) => normalizeEvenement(g.evenement) === "civil").length;
-    listStatus.textContent = `${allGuests.length} invitation(s) · ${civilCount} civil · ${withTable} table(s)`;
+    listStatus.textContent =
+      guests.length === allGuests.length
+        ? `${allGuests.length} invité(s) · ${civilCount} civil · ${withTable} table(s)`
+        : `${guests.length} / ${allGuests.length} invité(s)`;
 
     guests.forEach((guest) => {
       const evenement = normalizeEvenement(guest.evenement);
@@ -696,6 +739,7 @@
 
   filterTable.addEventListener("change", paint);
   if (filterEvenement) filterEvenement.addEventListener("change", paint);
+  if (filterType) filterType.addEventListener("change", paint);
   btnRefresh.addEventListener("click", loadList);
   loadList();
 })();

@@ -462,7 +462,52 @@ select:focus {
 }
 
 .list-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
+}
+
+.guest-roster-wrap {
+  overflow-x: auto;
+  margin: 0.85rem 0 1.25rem;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.guest-roster {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.guest-roster th,
+.guest-roster td {
+  text-align: left;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+  vertical-align: top;
+}
+
+.guest-roster th {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  font-weight: 500;
+}
+
+.guest-roster td:nth-child(1) {
+  font-weight: 500;
+  color: var(--cream);
+}
+
+.guest-roster tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.guest-qr-heading {
+  margin: 1.1rem 0 0;
 }
 
 .list-filters label {
