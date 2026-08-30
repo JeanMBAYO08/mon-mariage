@@ -318,6 +318,13 @@ def update_guest(payload: dict) -> dict:
             guest["nom"] = str(payload.get("nom")).strip()
         if "evenement" in payload:
             guest["evenement"] = normalize_evenement(payload.get("evenement"))
+        if "type" in payload:
+            invite_type = str(payload.get("type") or "singleton").strip().lower()
+            if invite_type in ("singleton", "couple", "collectif"):
+                guest["type"] = invite_type
+                guest["personnes"] = normalize_personnes(
+                    invite_type, payload.get("personnes", guest.get("personnes"))
+                )
         save_invites(invites)
         return {"ok": True, "updated": True, "guest": guest_public(guest)}
 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <title>Liste des invités — Parfaite & Jean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="acces/acces.css?v=20260830k" />
+</head>
+<body class="page-invites">
+  <header class="acces-top">
+    <p class="acces-kicker">Organisation</p>
+    <h1>Liste des invités</h1>
+    <p class="acces-sub">Nom · type · table — tu peux modifier chaque ligne</p>
+  </header>
+
+  <main class="acces-main acces-main-wide">
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Invités</h2>
+        <div class="panel-actions">
+          <a class="btn btn-ghost-dark" href="admin-qr.html">Admin QR</a>
+          <button class="btn btn-ghost-dark" type="button" id="btn-refresh">Actualiser</button>
+        </div>
+      </div>
+      <div class="list-filters">
+        <label>
+          Rechercher
+          <input id="filter-search" type="search" placeholder="Nom…" autocomplete="off" />
+        </label>
+        <label>
+          Type
+          <select id="filter-type">
+            <option value="all">Tous</option>
+            <option value="singleton">Singleton</option>
+            <option value="couple">Couple</option>
+            <option value="collectif">Collectif</option>
+          </select>
+        </label>
+        <label>
+          Table
+          <select id="filter-table">
+            <option value="all">Toutes</option>
+            <option value="none">Sans table</option>
+          </select>
+        </label>
+      </div>
+      <p class="hint" id="list-status">Chargement…</p>
+      <div class="guest-roster-wrap">
+        <table class="guest-roster guest-roster-edit" id="guest-roster">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Table</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="acces/config.js"></script>
+  <script src="acces/api.js?v=20260830k"></script>
+  <script src="acces/invites-list.js?v=20260830k"></script>
+</body>
+</html>

@@ -156,6 +156,8 @@
               notes: params.notes,
               nom: params.nom,
               evenement: params.evenement,
+              type: params.type,
+              personnes: params.personnes,
             }),
           });
         }

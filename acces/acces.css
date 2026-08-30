@@ -510,6 +510,40 @@ select:focus {
   margin: 1.1rem 0 0;
 }
 
+.page-invites .acces-main-wide {
+  width: min(100%, 58rem);
+}
+
+.guest-roster-edit input,
+.guest-roster-edit select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.6rem;
+}
+
+.guest-roster-edit .btn-row-save {
+  width: 100%;
+  min-width: 7.5rem;
+  padding: 0.5rem 0.7rem;
+}
+
+.list-filters input[type="search"] {
+  width: min(100%, 14rem);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0.55rem 0.7rem;
+}
+
 .list-filters label {
   display: grid;
   gap: 0.35rem;
