@@ -564,6 +564,30 @@ select:focus {
   background: rgba(212, 175, 55, 0.06);
 }
 
+.guest-roster-edit .guest-presence {
+  width: 4.2rem;
+  text-align: center;
+}
+
+.guest-roster-edit .presence-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+}
+
+.guest-roster-edit .presence-check input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--ok);
+  cursor: pointer;
+}
+
+.guest-roster-edit tr.is-present td {
+  background: rgba(61, 139, 102, 0.12);
+}
+
 .list-filters input[type="search"] {
   width: min(100%, 14rem);
   border: 1px solid rgba(212, 175, 55, 0.28);

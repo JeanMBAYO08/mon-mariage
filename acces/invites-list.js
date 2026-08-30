@@ -13,9 +13,14 @@
   const filterSearch = document.getElementById("filter-search");
   const filterType = document.getElementById("filter-type");
   const filterTable = document.getElementById("filter-table");
+  const filterPresence = document.getElementById("filter-presence");
 
   let allGuests = [];
   let editingCode = "";
+
+  function isPresent(guest) {
+    return String(guest?.statut || "").toLowerCase() === "entree";
+  }
 
   function typeLabelOf(type) {
     if (typeof inviteTypeLabel === "function") return inviteTypeLabel(type);
@@ -78,12 +83,15 @@
     const q = String(filterSearch?.value || "").trim().toLowerCase();
     const typeMode = filterType?.value || "all";
     const tableMode = filterTable?.value || "all";
+    const presenceMode = filterPresence?.value || "all";
     return sortGuests(allGuests).filter((guest) => {
       if (q && !String(guest.nom || "").toLowerCase().includes(q)) return false;
       if (typeMode !== "all" && String(guest.type || "").toLowerCase() !== typeMode) return false;
       const tableRaw = String(guest.table || "").trim();
-      if (tableMode === "none") return !tableRaw;
-      if (tableMode !== "all") return tableRaw === tableMode;
+      if (tableMode === "none" && tableRaw) return false;
+      if (tableMode !== "all" && tableMode !== "none" && tableRaw !== tableMode) return false;
+      if (presenceMode === "present" && !isPresent(guest)) return false;
+      if (presenceMode === "absent" && isPresent(guest)) return false;
       return true;
     });
   }
@@ -111,6 +119,41 @@
       type: tr.querySelector('[data-field="type"]').value,
       table: tr.querySelector('[data-field="table"]').value,
     };
+  }
+
+  function createPresenceCell(guest) {
+    const td = document.createElement("td");
+    td.className = "guest-presence";
+    const label = document.createElement("label");
+    label.className = "presence-check";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.checked = isPresent(guest);
+    box.setAttribute("aria-label", `Présent : ${guest.nom || "invité"}`);
+    box.addEventListener("change", () => togglePresence(guest, box));
+    label.appendChild(box);
+    td.appendChild(label);
+    return td;
+  }
+
+  async function togglePresence(guest, box) {
+    const present = box.checked;
+    box.disabled = true;
+    try {
+      const result = await request({
+        action: "update",
+        code: guest.code,
+        statut: present ? "entree" : "confirme",
+      });
+      if (!result.ok) throw new Error(result.error || "Mise à jour impossible");
+      allGuests = allGuests.map((g) => (g.code === result.guest.code ? result.guest : g));
+      paint();
+    } catch (err) {
+      box.checked = !present;
+      window.alert(err?.message || "Impossible de pointer cet invité.");
+    } finally {
+      box.disabled = false;
+    }
   }
 
   async function saveRow(guest, tr, saveBtn) {
@@ -141,6 +184,7 @@
 
   function renderViewRow(guest) {
     const tr = document.createElement("tr");
+    if (isPresent(guest)) tr.classList.add("is-present");
     const nom = document.createElement("td");
     nom.textContent = guest.nom || "—";
     const type = document.createElement("td");
@@ -159,13 +203,13 @@
       paint();
     });
     action.appendChild(editBtn);
-    tr.append(nom, type, table, action);
+    tr.append(createPresenceCell(guest), nom, type, table, action);
     return tr;
   }
 
   function renderEditRow(guest) {
     const tr = document.createElement("tr");
-    tr.className = "is-editing";
+    tr.className = isPresent(guest) ? "is-editing is-present" : "is-editing";
 
     const nomTd = document.createElement("td");
     const nomInput = document.createElement("input");
@@ -198,7 +242,7 @@
     });
     actionTd.append(saveBtn, cancelBtn);
 
-    tr.append(nomTd, typeTd, tableTd, actionTd);
+    tr.append(createPresenceCell(guest), nomTd, typeTd, tableTd, actionTd);
     window.setTimeout(() => nomInput.focus(), 0);
     return tr;
   }
@@ -214,10 +258,13 @@
       listStatus.textContent = "Aucun invité pour le moment.";
       return;
     }
-    listStatus.textContent =
-      guests.length === allGuests.length
-        ? `${allGuests.length} invité(s)`
-        : `${guests.length} / ${allGuests.length} invité(s)`;
+    const presentCount = allGuests.filter(isPresent).length;
+    const presentPeople = allGuests
+      .filter(isPresent)
+      .reduce((sum, g) => sum + (Number(g.personnes) || 1), 0);
+    const filterNote =
+      guests.length === allGuests.length ? "" : ` · ${guests.length} affiché(s)`;
+    listStatus.textContent = `${presentCount} présent(s) · ${presentPeople} pers. sur place · ${allGuests.length} invité(s)${filterNote}`;
     guests.forEach((guest) => rosterBody.appendChild(renderRow(guest)));
   }
 
@@ -236,6 +283,7 @@
   filterSearch?.addEventListener("input", paint);
   filterType?.addEventListener("change", paint);
   filterTable?.addEventListener("change", paint);
+  filterPresence?.addEventListener("change", paint);
   btnRefresh?.addEventListener("click", loadList);
   loadList();
 })();

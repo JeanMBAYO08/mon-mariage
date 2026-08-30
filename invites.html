@@ -8,13 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500&family=Josefin+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="acces/acces.css?v=20260830l" />
+  <link rel="stylesheet" href="acces/acces.css?v=20260830m" />
 </head>
 <body class="page-invites">
   <header class="acces-top">
     <p class="acces-kicker">Organisation</p>
     <h1>Liste des invités</h1>
-    <p class="acces-sub">Nom · type · table — tu peux modifier chaque ligne</p>
+    <p class="acces-sub">Coche les présents · modifie nom, type et table</p>
   </header>
 
   <main class="acces-main acces-main-wide">
@@ -47,12 +47,21 @@
             <option value="none">Sans table</option>
           </select>
         </label>
+        <label>
+          Présence
+          <select id="filter-presence">
+            <option value="all">Tous</option>
+            <option value="present">Présents</option>
+            <option value="absent">Absents</option>
+          </select>
+        </label>
       </div>
       <p class="hint" id="list-status">Chargement…</p>
       <div class="guest-roster-wrap">
         <table class="guest-roster guest-roster-edit" id="guest-roster">
           <thead>
             <tr>
+              <th>Présent</th>
               <th>Nom</th>
               <th>Type</th>
               <th>Table</th>
@@ -66,7 +75,7 @@
   </main>
 
   <script src="acces/config.js"></script>
-  <script src="acces/api.js?v=20260830l"></script>
-  <script src="acces/invites-list.js?v=20260830l"></script>
+  <script src="acces/api.js?v=20260830m"></script>
+  <script src="acces/invites-list.js?v=20260830m"></script>
 </body>
 </html>

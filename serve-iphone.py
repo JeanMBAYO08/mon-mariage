@@ -325,6 +325,14 @@ def update_guest(payload: dict) -> dict:
                 guest["personnes"] = normalize_personnes(
                     invite_type, payload.get("personnes", guest.get("personnes"))
                 )
+        if "statut" in payload:
+            statut = str(payload.get("statut") or "").strip().lower()
+            if statut in ("invite", "confirme", "entree"):
+                guest["statut"] = statut
+                if statut == "entree":
+                    guest["date_entree"] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                else:
+                    guest["date_entree"] = ""
         save_invites(invites)
         return {"ok": True, "updated": True, "guest": guest_public(guest)}
 

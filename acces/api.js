@@ -158,6 +158,7 @@
               evenement: params.evenement,
               type: params.type,
               personnes: params.personnes,
+              statut: params.statut,
             }),
           });
         }
