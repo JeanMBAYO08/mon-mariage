@@ -1,6 +1,6 @@
 (() => {
   const INVITE_CARD_SRC =
-    "/images/invitation-carte.png";
+    "/images/invitation-carte.png?v=20260830g";
 
   let baseImagePromise = null;
 
