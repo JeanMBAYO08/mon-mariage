@@ -1,6 +1,6 @@
 (() => {
   const INVITE_CARD_SRC =
-    "/images/invitation-carte.png?v=20260830h";
+    "/images/invitation-carte.png?v=20260830i";
 
   let baseImagePromise = null;
 
@@ -30,54 +30,12 @@
     ctx.fillText(text, x, y);
   }
 
-  const DRESS_PALETTES = {
-    civil: {
-      theme: "Civil · champagne & beige",
-      names: "Ivoire · champagne · beige · or",
-      colors: ["#fffdf9", "#faf6f0", "#f0e4d4", "#e2d3bc", "#c9b28f", "#b08958"],
-    },
-    soiree: {
-      theme: "Soirée · noir & or",
-      names: "Noir · charbon · or",
-      colors: ["#0f0f0f", "#1c1c1c", "#2e2e2e", "#b08958", "#d4af37", "#e5c878"],
-    },
-  };
-
-  function drawColorDots(ctx, colors, cx, y, radius) {
-    const gap = Math.max(5, Math.round(radius * 0.55));
-    const total = colors.length * (radius * 2) + (colors.length - 1) * gap;
-    let x = cx - total / 2 + radius;
-    colors.forEach((color) => {
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-      ctx.strokeStyle = "rgba(232, 213, 163, 0.7)";
-      ctx.lineWidth = Math.max(1, radius * 0.12);
-      ctx.stroke();
-      x += radius * 2 + gap;
-    });
-  }
-
-  function drawDressReminder(ctx, evenement, cx, startY, scale) {
-    const rows = evenement === "civil" ? ["civil"] : ["civil", "soiree"];
-    const radius = Math.round(9 * scale);
-    let y = startY;
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
-    ctx.font = `500 ${Math.round(12 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-    drawCentered(ctx, "DRESS CODE · À RETENIR", cx, y);
-    y += Math.round(26 * scale);
-
-    rows.forEach((key) => {
-      const palette = DRESS_PALETTES[key];
-      ctx.fillStyle = "#e8d5a3";
-      ctx.font = `500 ${Math.round(14 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-      drawCentered(ctx, `${palette.theme}  ·  ${palette.names}`, cx, y);
-      y += Math.round(18 * scale);
-      drawColorDots(ctx, palette.colors, cx, y, radius);
-      y += Math.round(28 * scale);
-    });
+  function guestTypeLabel(guest) {
+    const type = String(guest?.type || "").toLowerCase();
+    if (type === "couple") return "Couple";
+    if (type === "collectif") return "Collectif";
+    if (type === "singleton") return "Singleton";
+    return type ? String(guest.type) : "Invitation";
   }
 
   async function buildGuestInviteCard(guest) {
@@ -89,15 +47,15 @@
           ? "civil"
           : "soiree";
     const nom = String(guest?.nom || "Invité").trim() || "Invité";
+    const typeLabel = guestTypeLabel(guest);
     const tableRaw = String(guest?.table || "").trim();
-    const tableLabel =
-      evenement === "civil"
+    const tableLabel = tableRaw
+      ? typeof api.tableLabel === "function"
+        ? api.tableLabel(tableRaw)
+        : `Table ${tableRaw}`
+      : evenement === "civil"
         ? "Cérémonie civile"
-        : tableRaw
-          ? typeof api.tableLabel === "function"
-            ? api.tableLabel(tableRaw)
-            : `Table ${tableRaw}`
-          : "Table à confirmer";
+        : "Table à confirmer";
 
     if (document.fonts?.ready) {
       try {
@@ -119,8 +77,8 @@
     const w = canvas.width;
     const h = canvas.height;
     const scale = w / 1080;
-    const panelTop = Math.round(h * 0.80);
-    const fadeH = Math.round(48 * scale);
+    const panelTop = Math.round(h * 0.86);
+    const fadeH = Math.round(40 * scale);
 
     ctx.save();
     const fade = ctx.createLinearGradient(0, panelTop - fadeH, 0, panelTop);
@@ -136,34 +94,23 @@
     ctx.textBaseline = "middle";
     const cx = w / 2;
     const maxTextW = Math.round(w * 0.9);
-    let y = panelTop + Math.round(28 * scale);
+    let y = panelTop + Math.round(36 * scale);
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = `400 ${Math.round(14 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-    drawCentered(ctx, "INVITÉ(E)", cx, y);
-
-    y += Math.round(30 * scale);
     ctx.fillStyle = "#ffffff";
-    const nameSize = fitText(ctx, nom, maxTextW, Math.round(34 * scale), Math.round(20 * scale));
+    const nameSize = fitText(ctx, nom, maxTextW, Math.round(36 * scale), Math.round(20 * scale));
     ctx.font = `500 ${nameSize}px "Bodoni Moda", Georgia, serif`;
     drawCentered(ctx, nom, cx, y);
 
-    y += Math.round(22 * scale);
-    ctx.strokeStyle = "rgba(212, 175, 55, 0.55)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(cx - 70 * scale, y);
-    ctx.lineTo(cx + 70 * scale, y);
-    ctx.stroke();
+    y += Math.round(32 * scale);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+    ctx.font = `500 ${Math.round(18 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+    drawCentered(ctx, typeLabel, cx, y);
 
-    y += Math.round(22 * scale);
+    y += Math.round(28 * scale);
     ctx.fillStyle = "#e8d5a3";
     const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(20 * scale), Math.round(15 * scale));
     ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, tableLabel, cx, y);
-
-    y += Math.round(32 * scale);
-    drawDressReminder(ctx, evenement, cx, y, scale);
 
 
     const blob = await new Promise((resolve, reject) => {
@@ -234,27 +181,19 @@
           ? "civil"
           : "soiree";
     const tableRaw = String(guest?.table || "").trim();
+    if (tableRaw) {
+      if (typeof api.tableLabel === "function") return api.tableLabel(tableRaw);
+      return `Table ${tableRaw}`;
+    }
     if (evenement === "civil") return "Cérémonie civile";
-    if (!tableRaw) return "Table à confirmer";
-    if (typeof api.tableLabel === "function") return api.tableLabel(tableRaw);
-    return `Table ${tableRaw}`;
+    return "Table à confirmer";
   }
 
   function guestInviteLinkText(guest, imageUrl) {
-    const api = window.AccesAPI || {};
     const nom = String(guest?.nom || "Invité").trim() || "Invité";
+    const type = guestTypeLabel(guest);
     const table = guestTableLabel(guest);
-    const evenement =
-      typeof api.normalizeEvenement === "function"
-        ? api.normalizeEvenement(guest?.evenement)
-        : String(guest?.evenement || "").toLowerCase() === "civil"
-          ? "civil"
-          : "soiree";
-    const dress =
-      evenement === "civil"
-        ? "Dress code civil : ivoire · champagne · beige · or"
-        : "Dress code\nCivil : ivoire · champagne · beige · or\nSoirée : noir · or";
-    return `Mariage Parfaite & Jean\n${nom}\n${table}\n\n${dress}\n\n${imageUrl}`;
+    return `Mariage Parfaite & Jean\n${nom}\n${type}\n${table}\n\n${imageUrl}`;
   }
 
   function isMobileDevice() {
