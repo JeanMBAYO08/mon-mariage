@@ -61,26 +61,22 @@
 
   function drawDressReminder(ctx, evenement, cx, startY, scale) {
     const rows = evenement === "civil" ? ["civil"] : ["civil", "soiree"];
-    const radius = Math.round(11 * scale);
+    const radius = Math.round(9 * scale);
     let y = startY;
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
-    ctx.font = `500 ${Math.round(13 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+    ctx.font = `500 ${Math.round(12 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, "DRESS CODE · À RETENIR", cx, y);
-    y += Math.round(28 * scale);
+    y += Math.round(26 * scale);
 
-    rows.forEach((key, index) => {
+    rows.forEach((key) => {
       const palette = DRESS_PALETTES[key];
       ctx.fillStyle = "#e8d5a3";
-      ctx.font = `500 ${Math.round(15 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-      drawCentered(ctx, palette.theme, cx, y);
-      y += Math.round(22 * scale);
+      ctx.font = `500 ${Math.round(14 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+      drawCentered(ctx, `${palette.theme}  ·  ${palette.names}`, cx, y);
+      y += Math.round(18 * scale);
       drawColorDots(ctx, palette.colors, cx, y, radius);
-      y += Math.round(22 * scale);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
-      ctx.font = `400 ${Math.round(13 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-      drawCentered(ctx, palette.names, cx, y);
-      y += index === rows.length - 1 ? 0 : Math.round(28 * scale);
+      y += Math.round(28 * scale);
     });
   }
 
@@ -123,49 +119,51 @@
     const w = canvas.width;
     const h = canvas.height;
     const scale = w / 1240;
-    const panelTop = Math.round(h * (evenement === "civil" ? 0.74 : 0.655));
-    const panelHeight = h - panelTop;
+    // La remarque du PNG est vers 78 % : on la recouvre, puis on dessine en dessous.
+    const remarkTop = Math.round(h * 0.765);
+    const fadeH = Math.round(40 * scale);
 
     ctx.save();
-    const gradient = ctx.createLinearGradient(0, panelTop - 36, 0, h);
-    gradient.addColorStop(0, "rgba(28, 18, 12, 0)");
-    gradient.addColorStop(0.12, "rgba(28, 18, 12, 0.84)");
-    gradient.addColorStop(1, "rgba(28, 18, 12, 0.97)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, panelTop - 36, w, panelHeight + 36);
+    const fade = ctx.createLinearGradient(0, remarkTop - fadeH, 0, remarkTop);
+    fade.addColorStop(0, "rgba(51, 39, 25, 0)");
+    fade.addColorStop(1, "rgba(51, 39, 25, 1)");
+    ctx.fillStyle = fade;
+    ctx.fillRect(0, remarkTop - fadeH, w, fadeH);
+    ctx.fillStyle = "rgb(51, 39, 25)";
+    ctx.fillRect(0, remarkTop, w, h - remarkTop);
     ctx.restore();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const cx = w / 2;
-    const maxTextW = Math.round(w * 0.86);
-    let y = panelTop + Math.round(32 * scale);
+    const maxTextW = Math.round(w * 0.9);
+    let y = remarkTop + Math.round(28 * scale);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = `400 ${Math.round(16 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+    ctx.font = `400 ${Math.round(14 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, "INVITÉ(E)", cx, y);
 
-    y += Math.round(36 * scale);
+    y += Math.round(30 * scale);
     ctx.fillStyle = "#ffffff";
-    const nameSize = fitText(ctx, nom, maxTextW, Math.round(40 * scale), Math.round(22 * scale));
+    const nameSize = fitText(ctx, nom, maxTextW, Math.round(34 * scale), Math.round(20 * scale));
     ctx.font = `500 ${nameSize}px "Bodoni Moda", Georgia, serif`;
     drawCentered(ctx, nom, cx, y);
 
-    y += Math.round(26 * scale);
+    y += Math.round(22 * scale);
     ctx.strokeStyle = "rgba(212, 175, 55, 0.55)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(cx - 78 * scale, y);
-    ctx.lineTo(cx + 78 * scale, y);
+    ctx.moveTo(cx - 70 * scale, y);
+    ctx.lineTo(cx + 70 * scale, y);
     ctx.stroke();
 
-    y += Math.round(26 * scale);
+    y += Math.round(22 * scale);
     ctx.fillStyle = "#e8d5a3";
-    const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(24 * scale), Math.round(16 * scale));
+    const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(20 * scale), Math.round(15 * scale));
     ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, tableLabel, cx, y);
 
-    y += Math.round(36 * scale);
+    y += Math.round(32 * scale);
     drawDressReminder(ctx, evenement, cx, y, scale);
 
 
