@@ -30,6 +30,60 @@
     ctx.fillText(text, x, y);
   }
 
+  const DRESS_PALETTES = {
+    civil: {
+      theme: "Civil · champagne & beige",
+      names: "Ivoire · champagne · beige · or",
+      colors: ["#fffdf9", "#faf6f0", "#f0e4d4", "#e2d3bc", "#c9b28f", "#b08958"],
+    },
+    soiree: {
+      theme: "Soirée · noir & or",
+      names: "Noir · charbon · or",
+      colors: ["#0f0f0f", "#1c1c1c", "#2e2e2e", "#b08958", "#d4af37", "#e5c878"],
+    },
+  };
+
+  function drawColorDots(ctx, colors, cx, y, radius) {
+    const gap = Math.max(5, Math.round(radius * 0.55));
+    const total = colors.length * (radius * 2) + (colors.length - 1) * gap;
+    let x = cx - total / 2 + radius;
+    colors.forEach((color) => {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(232, 213, 163, 0.7)";
+      ctx.lineWidth = Math.max(1, radius * 0.12);
+      ctx.stroke();
+      x += radius * 2 + gap;
+    });
+  }
+
+  function drawDressReminder(ctx, evenement, cx, startY, scale) {
+    const rows = evenement === "civil" ? ["civil"] : ["civil", "soiree"];
+    const radius = Math.round(11 * scale);
+    let y = startY;
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
+    ctx.font = `500 ${Math.round(13 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+    drawCentered(ctx, "DRESS CODE · À RETENIR", cx, y);
+    y += Math.round(28 * scale);
+
+    rows.forEach((key, index) => {
+      const palette = DRESS_PALETTES[key];
+      ctx.fillStyle = "#e8d5a3";
+      ctx.font = `500 ${Math.round(15 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+      drawCentered(ctx, palette.theme, cx, y);
+      y += Math.round(22 * scale);
+      drawColorDots(ctx, palette.colors, cx, y, radius);
+      y += Math.round(22 * scale);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.72)";
+      ctx.font = `400 ${Math.round(13 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+      drawCentered(ctx, palette.names, cx, y);
+      y += index === rows.length - 1 ? 0 : Math.round(28 * scale);
+    });
+  }
+
   async function buildGuestInviteCard(guest) {
     const api = window.AccesAPI || {};
     const evenement =
@@ -68,44 +122,51 @@
 
     const w = canvas.width;
     const h = canvas.height;
-    const panelTop = Math.round(h * 0.805);
+    const scale = w / 1240;
+    const panelTop = Math.round(h * (evenement === "civil" ? 0.74 : 0.655));
     const panelHeight = h - panelTop;
 
-    // Panneau bas ordonné (remplace le pied de page vide + zone remarque)
     ctx.save();
-    const gradient = ctx.createLinearGradient(0, panelTop - 30, 0, h);
+    const gradient = ctx.createLinearGradient(0, panelTop - 36, 0, h);
     gradient.addColorStop(0, "rgba(28, 18, 12, 0)");
-    gradient.addColorStop(0.18, "rgba(28, 18, 12, 0.82)");
-    gradient.addColorStop(1, "rgba(28, 18, 12, 0.96)");
+    gradient.addColorStop(0.12, "rgba(28, 18, 12, 0.84)");
+    gradient.addColorStop(1, "rgba(28, 18, 12, 0.97)");
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, panelTop - 30, w, panelHeight + 30);
+    ctx.fillRect(0, panelTop - 36, w, panelHeight + 36);
     ctx.restore();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const cx = w / 2;
     const maxTextW = Math.round(w * 0.86);
+    let y = panelTop + Math.round(32 * scale);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = '400 20px "Josefin Sans", "Helvetica Neue", sans-serif';
-    drawCentered(ctx, "INVITÉ(E)", cx, panelTop + panelHeight * 0.22);
+    ctx.font = `400 ${Math.round(16 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+    drawCentered(ctx, "INVITÉ(E)", cx, y);
 
+    y += Math.round(36 * scale);
     ctx.fillStyle = "#ffffff";
-    const nameSize = fitText(ctx, nom, maxTextW, 46, 24);
+    const nameSize = fitText(ctx, nom, maxTextW, Math.round(40 * scale), Math.round(22 * scale));
     ctx.font = `500 ${nameSize}px "Bodoni Moda", Georgia, serif`;
-    drawCentered(ctx, nom, cx, panelTop + panelHeight * 0.45);
+    drawCentered(ctx, nom, cx, y);
 
+    y += Math.round(26 * scale);
     ctx.strokeStyle = "rgba(212, 175, 55, 0.55)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(cx - 78, panelTop + panelHeight * 0.62);
-    ctx.lineTo(cx + 78, panelTop + panelHeight * 0.62);
+    ctx.moveTo(cx - 78 * scale, y);
+    ctx.lineTo(cx + 78 * scale, y);
     ctx.stroke();
 
+    y += Math.round(26 * scale);
     ctx.fillStyle = "#e8d5a3";
-    const tableSize = fitText(ctx, tableLabel, maxTextW, 30, 18);
+    const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(24 * scale), Math.round(16 * scale));
     ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-    drawCentered(ctx, tableLabel, cx, panelTop + panelHeight * 0.78);
+    drawCentered(ctx, tableLabel, cx, y);
+
+    y += Math.round(36 * scale);
+    drawDressReminder(ctx, evenement, cx, y, scale);
 
 
     const blob = await new Promise((resolve, reject) => {
@@ -183,9 +244,20 @@
   }
 
   function guestInviteLinkText(guest, imageUrl) {
+    const api = window.AccesAPI || {};
     const nom = String(guest?.nom || "Invité").trim() || "Invité";
     const table = guestTableLabel(guest);
-    return `Mariage Parfaite & Jean\n${nom}\n${table}\n\n${imageUrl}`;
+    const evenement =
+      typeof api.normalizeEvenement === "function"
+        ? api.normalizeEvenement(guest?.evenement)
+        : String(guest?.evenement || "").toLowerCase() === "civil"
+          ? "civil"
+          : "soiree";
+    const dress =
+      evenement === "civil"
+        ? "Dress code civil : ivoire · champagne · beige · or"
+        : "Dress code\nCivil : ivoire · champagne · beige · or\nSoirée : noir · or";
+    return `Mariage Parfaite & Jean\n${nom}\n${table}\n\n${dress}\n\n${imageUrl}`;
   }
 
   function isMobileDevice() {
