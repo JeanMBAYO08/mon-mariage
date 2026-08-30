@@ -1,8 +1,7 @@
 {
   "functions": {
     "api/invite-card.js": {
-      "includeFiles": "images/invitation-final.png",
-      "memory": 1024,
+      "includeFiles": "{images/invitation-final.jpg,fonts/**}",
       "maxDuration": 15
     }
   }

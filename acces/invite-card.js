@@ -1,6 +1,6 @@
 (() => {
   const INVITE_CARD_SRC =
-    "/images/invitation-final.png?v=20260830o";
+    "/images/invitation-final.jpg?v=20260830q";
 
   let baseImagePromise = null;
 
@@ -77,38 +77,40 @@
     const w = canvas.width;
     const h = canvas.height;
     const scale = w / 1080;
-    const panelTop = Math.round(h * 0.86);
-    const fadeH = Math.round(40 * scale);
+    const panelTop = Math.round(h * 0.785);
+    const remakeTop = Math.round(h * 0.954);
+    const panelH = remakeTop - panelTop;
 
     ctx.save();
-    const fade = ctx.createLinearGradient(0, panelTop - fadeH, 0, panelTop);
-    fade.addColorStop(0, "rgba(86, 66, 41, 0)");
-    fade.addColorStop(1, "rgba(86, 66, 41, 0.96)");
+    const fade = ctx.createLinearGradient(0, panelTop, 0, remakeTop);
+    fade.addColorStop(0, "rgba(28, 22, 16, 0)");
+    fade.addColorStop(0.22, "rgba(28, 22, 16, 0.55)");
+    fade.addColorStop(1, "rgba(28, 22, 16, 0.78)");
     ctx.fillStyle = fade;
-    ctx.fillRect(0, panelTop - fadeH, w, fadeH);
-    ctx.fillStyle = "rgba(86, 66, 41, 0.96)";
-    ctx.fillRect(0, panelTop, w, h - panelTop);
+    ctx.fillRect(0, panelTop, w, panelH);
     ctx.restore();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const cx = w / 2;
-    const maxTextW = Math.round(w * 0.9);
-    let y = panelTop + Math.round(36 * scale);
+    const maxTextW = Math.round(w * 0.88);
+    const nameSize = fitText(ctx, nom, maxTextW, Math.round(42 * scale), Math.round(22 * scale));
+    const typeSize = Math.round(24 * scale);
+    const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(26 * scale), Math.round(16 * scale));
+    const blockH = nameSize + typeSize + tableSize + Math.round(36 * scale);
+    let y = panelTop + Math.round((panelH - blockH) / 2) + nameSize / 2;
 
     ctx.fillStyle = "#ffffff";
-    const nameSize = fitText(ctx, nom, maxTextW, Math.round(36 * scale), Math.round(20 * scale));
     ctx.font = `500 ${nameSize}px "Bodoni Moda", Georgia, serif`;
     drawCentered(ctx, nom, cx, y);
 
-    y += Math.round(32 * scale);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
-    ctx.font = `500 ${Math.round(18 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+    y += nameSize / 2 + Math.round(22 * scale);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.86)";
+    ctx.font = `500 ${typeSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, typeLabel, cx, y);
 
-    y += Math.round(28 * scale);
+    y += typeSize + Math.round(16 * scale);
     ctx.fillStyle = "#e8d5a3";
-    const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(20 * scale), Math.round(15 * scale));
     ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, tableLabel, cx, y);
 

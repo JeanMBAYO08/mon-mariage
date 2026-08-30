@@ -359,7 +359,9 @@ def invite_card_labels(guest: dict) -> tuple[str, str, str]:
 
 
 def render_invite_card(guest: dict) -> bytes | None:
-    src = ROOT / "images" / "invitation-final.png"
+    src = ROOT / "images" / "invitation-final.jpg"
+    if not src.exists():
+        src = ROOT / "images" / "invitation-final.png"
     if not src.exists():
         src = ROOT / "images" / "invitation-carte.png"
     if not src.exists():
@@ -367,29 +369,30 @@ def render_invite_card(guest: dict) -> bytes | None:
     try:
         from PIL import Image, ImageDraw, ImageFont
     except Exception:
-        return src.read_bytes() if src.suffix.lower() == ".jpg" else None
+        return src.read_bytes() if src.suffix.lower() in {".jpg", ".jpeg"} else None
 
     img = Image.open(src).convert("RGB")
     w, h = img.size
-    panel_top = int(h * 0.86)
+    panel_top = int(h * 0.785)
+    remake_top = int(h * 0.954)
     draw = ImageDraw.Draw(img)
-    draw.rectangle((0, panel_top, w, h), fill=(86, 66, 41))
+    draw.rectangle((0, panel_top, w, remake_top), fill=(28, 22, 16))
     nom, type_label, table = invite_card_labels(guest)
     try:
-        name_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Georgia.ttf", max(22, w // 24))
-        body_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", max(16, w // 42))
+        name_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Georgia.ttf", max(22, w // 22))
+        body_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", max(16, w // 36))
     except Exception:
         name_font = ImageFont.load_default()
         body_font = name_font
     cx = w / 2
-    y = panel_top + int(h * 0.04)
-    draw.text((cx, y), nom, font=name_font, fill=(255, 255, 255), anchor="mm")
-    draw.text((cx, y + int(h * 0.038)), type_label, font=body_font, fill=(230, 230, 230), anchor="mm")
-    draw.text((cx, y + int(h * 0.07)), table, font=body_font, fill=(232, 213, 163), anchor="mm")
+    mid = panel_top + (remake_top - panel_top) // 2
+    draw.text((cx, mid - int(h * 0.038)), nom, font=name_font, fill=(255, 255, 255), anchor="mm")
+    draw.text((cx, mid), type_label, font=body_font, fill=(230, 230, 230), anchor="mm")
+    draw.text((cx, mid + int(h * 0.034)), table, font=body_font, fill=(232, 213, 163), anchor="mm")
     import io
 
     out = io.BytesIO()
-    img.save(out, format="JPEG", quality=88)
+    img.save(out, format="JPEG", quality=95)
     return out.getvalue()
 
 
