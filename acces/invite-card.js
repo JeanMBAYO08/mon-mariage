@@ -244,8 +244,9 @@
       throw new Error("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
     }
 
-    const { dataUrl } = await buildGuestInviteCard(guest);
-    const imageUrl = await uploadInviteCard(guest, dataUrl);
+    const imageUrl = `${window.location.origin}/api/invite-card?code=${encodeURIComponent(
+      String(guest?.code || "").toUpperCase()
+    )}`;
     const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(
       guestInviteLinkText(guest, imageUrl)
     )}`;
