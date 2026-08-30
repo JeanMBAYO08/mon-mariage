@@ -167,6 +167,27 @@
     );
   }
 
+  function guestTableLabel(guest) {
+    const api = window.AccesAPI || {};
+    const evenement =
+      typeof api.normalizeEvenement === "function"
+        ? api.normalizeEvenement(guest?.evenement)
+        : String(guest?.evenement || "").toLowerCase() === "civil"
+          ? "civil"
+          : "soiree";
+    const tableRaw = String(guest?.table || "").trim();
+    if (evenement === "civil") return "Cérémonie civile";
+    if (!tableRaw) return "Table à confirmer";
+    if (typeof api.tableLabel === "function") return api.tableLabel(tableRaw);
+    return `Table ${tableRaw}`;
+  }
+
+  function guestInviteLinkText(guest, imageUrl) {
+    const nom = String(guest?.nom || "Invité").trim() || "Invité";
+    const table = guestTableLabel(guest);
+    return `Mariage Parfaite & Jean\n${nom}\n${table}\n\n${imageUrl}`;
+  }
+
   function isMobileDevice() {
     return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || "")
       || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.userAgent || ""));
@@ -217,7 +238,9 @@
 
     const { dataUrl } = await buildGuestInviteCard(guest);
     const imageUrl = await uploadInviteCard(guest, dataUrl);
-    const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(imageUrl)}`;
+    const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(
+      guestInviteLinkText(guest, imageUrl)
+    )}`;
 
     if (isMobileDevice()) {
       window.location.assign(waUrl);
