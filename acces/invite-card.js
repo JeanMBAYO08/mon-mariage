@@ -1,6 +1,6 @@
 (() => {
   const INVITE_CARD_SRC =
-    "/images/invitation-carte.png?v=20260830g";
+    "/images/invitation-carte.png?v=20260830h";
 
   let baseImagePromise = null;
 
@@ -109,8 +109,8 @@
 
     const img = await loadBaseImage();
     const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth || 1240;
-    canvas.height = img.naturalHeight || 1748;
+    canvas.width = img.naturalWidth || 1080;
+    canvas.height = img.naturalHeight || 1920;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas indisponible");
 
@@ -118,26 +118,25 @@
 
     const w = canvas.width;
     const h = canvas.height;
-    const scale = w / 1240;
-    // La remarque du PNG est vers 78 % : on la recouvre, puis on dessine en dessous.
-    const remarkTop = Math.round(h * 0.765);
-    const fadeH = Math.round(40 * scale);
+    const scale = w / 1080;
+    const panelTop = Math.round(h * 0.80);
+    const fadeH = Math.round(48 * scale);
 
     ctx.save();
-    const fade = ctx.createLinearGradient(0, remarkTop - fadeH, 0, remarkTop);
-    fade.addColorStop(0, "rgba(51, 39, 25, 0)");
-    fade.addColorStop(1, "rgba(51, 39, 25, 1)");
+    const fade = ctx.createLinearGradient(0, panelTop - fadeH, 0, panelTop);
+    fade.addColorStop(0, "rgba(86, 66, 41, 0)");
+    fade.addColorStop(1, "rgba(86, 66, 41, 0.96)");
     ctx.fillStyle = fade;
-    ctx.fillRect(0, remarkTop - fadeH, w, fadeH);
-    ctx.fillStyle = "rgb(51, 39, 25)";
-    ctx.fillRect(0, remarkTop, w, h - remarkTop);
+    ctx.fillRect(0, panelTop - fadeH, w, fadeH);
+    ctx.fillStyle = "rgba(86, 66, 41, 0.96)";
+    ctx.fillRect(0, panelTop, w, h - panelTop);
     ctx.restore();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const cx = w / 2;
     const maxTextW = Math.round(w * 0.9);
-    let y = remarkTop + Math.round(28 * scale);
+    let y = panelTop + Math.round(28 * scale);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.font = `400 ${Math.round(14 * scale)}px "Josefin Sans", "Helvetica Neue", sans-serif`;
