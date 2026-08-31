@@ -7,9 +7,9 @@ window.ACCES_CONFIG = {
   // Site + API uniquement sur Vercel
   SITE_BASE_URL: "https://mon-mariage-rho.vercel.app",
   API_BASE_URL: "https://mon-mariage-rho.vercel.app",
-  // Confirmations publiques closes — ajout uniquement depuis l’admin
-  RSVP_MANUAL_ONLY: true,
-  RSVP_DEADLINE: "2026-08-25T23:59:59+01:00",
+  // Confirmations publiques ouvertes jusqu’au 10 septembre
+  RSVP_MANUAL_ONLY: false,
+  RSVP_DEADLINE: "2026-09-10T23:59:59+01:00",
   // Tables : langages & frameworks (Parfaite & Jean)
   TABLE_NAMES: [
     "Python",

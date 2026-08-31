@@ -269,17 +269,17 @@ def upsert_rsvp(payload: dict) -> dict:
     return {"ok": True, "created": True, "guest": guest_public(guest)}
 
 
-RSVP_DEADLINE = os.environ.get("RSVP_DEADLINE", "2026-08-25T23:59:59+01:00")
+RSVP_DEADLINE = os.environ.get("RSVP_DEADLINE", "2026-09-10T23:59:59+01:00")
 
 
 def rsvp_open(now: datetime | None = None) -> bool:
-    if os.environ.get("RSVP_MANUAL_ONLY", "1") != "0":
+    if os.environ.get("RSVP_MANUAL_ONLY", "0") == "1":
         return False
     current = now or datetime.now().astimezone()
     try:
         deadline = datetime.fromisoformat(RSVP_DEADLINE)
     except Exception:
-        deadline = datetime.fromisoformat("2026-08-25T23:59:59+01:00")
+        deadline = datetime.fromisoformat("2026-09-10T23:59:59+01:00")
     if deadline.tzinfo is None:
         deadline = deadline.replace(tzinfo=current.tzinfo)
     if current.tzinfo is None:
