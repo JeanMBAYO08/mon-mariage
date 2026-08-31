@@ -220,6 +220,44 @@
     return `${window.location.origin}${data.imageUrl}`;
   }
 
+  function inviteOrigin() {
+    const api = window.AccesAPI || {};
+    const base = String(api.cfg?.SITE_BASE_URL || window.location.origin || "").replace(/\/$/, "");
+    return base || window.location.origin;
+  }
+
+  function guestInviteUrl(guestOrCode) {
+    const code = String(
+      typeof guestOrCode === "string" ? guestOrCode : guestOrCode?.code || ""
+    )
+      .trim()
+      .toUpperCase();
+    return `${inviteOrigin()}/api/invite-card?code=${encodeURIComponent(code)}`;
+  }
+
+  async function copyText(value) {
+    const text = String(value || "");
+    if (!text) throw new Error("Lien vide");
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return text;
+    }
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.left = "-9999px";
+    document.body.appendChild(field);
+    field.select();
+    document.execCommand("copy");
+    field.remove();
+    return text;
+  }
+
+  async function copyGuestInviteLink(guest) {
+    return copyText(guestInviteUrl(guest));
+  }
+
   async function shareGuestInviteCard(guest, phoneOverride) {
     const api = window.AccesAPI || {};
     const phone =
@@ -234,9 +272,7 @@
       throw new Error("Ajoutez d’abord le numéro WhatsApp de l’invité (ex. +243…).");
     }
 
-    const imageUrl = `${window.location.origin}/api/invite-card?code=${encodeURIComponent(
-      String(guest?.code || "").toUpperCase()
-    )}`;
+    const imageUrl = guestInviteUrl(guest);
     const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(
       guestInviteLinkText(guest, imageUrl)
     )}`;
@@ -254,6 +290,8 @@
     INVITE_CARD_SRC,
     buildGuestInviteCard,
     guestConfirmCardMessage,
+    guestInviteUrl,
+    copyGuestInviteLink,
     shareGuestInviteCard,
     openWhatsappChat,
     downloadBlob,

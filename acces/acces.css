@@ -631,6 +631,35 @@ select:focus {
   width: 100%;
 }
 
+.btn-copy-link {
+  gap: 0.45rem;
+}
+
+.btn-copy-link svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.invite-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  margin-top: 0.65rem;
+}
+
+.invite-link-url {
+  flex: 1 1 12rem;
+  font-size: 0.72rem;
+  word-break: break-all;
+  color: var(--gold, #d4af37);
+  user-select: all;
+}
+
+.btn-copy-link.btn {
+  width: auto;
+}
+
 .btn-share-wa {
   gap: 0.45rem;
   background: rgba(37, 211, 102, 0.12);

@@ -185,6 +185,62 @@
     `;
   }
 
+  function linkIconSvg() {
+    return `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 0 0 0 6h3v2h-3a5 5 0 0 1-5-5Zm12.2-5h-3v2h3a3 3 0 0 1 0 6h-3v2h3a5 5 0 0 0 0-10ZM8 11h8v2H8v-2Z"/>
+      </svg>
+    `;
+  }
+
+  function guestInviteUrl(guest) {
+    if (window.InviteCard?.guestInviteUrl) return window.InviteCard.guestInviteUrl(guest);
+    const origin = String(window.AccesAPI?.cfg?.SITE_BASE_URL || window.location.origin).replace(/\/$/, "");
+    return `${origin}/api/invite-card?code=${encodeURIComponent(String(guest?.code || "").toUpperCase())}`;
+  }
+
+  async function copyInviteLink(guest, button) {
+    const url = guestInviteUrl(guest);
+    try {
+      if (window.InviteCard?.copyGuestInviteLink) {
+        await window.InviteCard.copyGuestInviteLink(guest);
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+      if (button) {
+        const previous = button.innerHTML;
+        button.textContent = "Lien copié";
+        window.setTimeout(() => {
+          button.innerHTML = previous;
+        }, 1600);
+      }
+      return url;
+    } catch {
+      window.prompt("Copiez le lien d’invitation :", url);
+      return url;
+    }
+  }
+
+  function showAddedInvite(statusEl, guest, summary) {
+    if (!statusEl || !guest) return;
+    statusEl.classList.remove("is-error");
+    statusEl.replaceChildren();
+    const line = document.createElement("span");
+    line.textContent = summary;
+    const row = document.createElement("span");
+    row.className = "invite-link-row";
+    const urlEl = document.createElement("code");
+    urlEl.className = "invite-link-url";
+    urlEl.textContent = guestInviteUrl(guest);
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "btn btn-ghost-dark btn-copy-link";
+    copyBtn.innerHTML = `${linkIconSvg()}<span>Copier le lien</span>`;
+    copyBtn.addEventListener("click", () => copyInviteLink(guest, copyBtn));
+    row.append(urlEl, copyBtn);
+    statusEl.append(line, row);
+  }
+
   function openWhatsappShare(guest, phoneOverride) {
     const phone = formatWhatsappIntl(phoneOverride ?? guest.whatsapp);
     if (!phone) {
@@ -354,6 +410,13 @@
       shareAction.innerHTML = `${shareIconSvg()}<span>Invitation WA</span>`;
       shareAction.addEventListener("click", () => shareBtn.click());
 
+      const copyLinkBtn = document.createElement("button");
+      copyLinkBtn.type = "button";
+      copyLinkBtn.className = "btn btn-ghost-dark btn-copy-link";
+      copyLinkBtn.title = "Copier le lien d’invitation";
+      copyLinkBtn.innerHTML = `${linkIconSvg()}<span>Copier le lien</span>`;
+      copyLinkBtn.addEventListener("click", () => copyInviteLink(guest, copyLinkBtn));
+
       const downloadCardBtn = document.createElement("button");
       downloadCardBtn.type = "button";
       downloadCardBtn.className = "btn btn-ghost-dark";
@@ -395,7 +458,7 @@
         }
       });
 
-      actions.append(link, shareAction, downloadCardBtn, deleteBtn);
+      actions.append(link, copyLinkBtn, shareAction, downloadCardBtn, deleteBtn);
       card.append(box, name, meta, code, tableRow, waRow, eventBadge, badge, tableBadge, actions);
       grid.appendChild(card);
 
@@ -640,7 +703,11 @@
         if (/^PJ-[A-Z0-9]{6}$/.test(code)) payload.code = code;
         const result = await request(payload);
         if (!result?.ok) throw new Error(result?.error || "Échec");
-        waMsg.textContent = `Ajouté : ${result.guest?.code || code || "QR créé"} · ${nom}`;
+        showAddedInvite(
+          waMsg,
+          result.guest,
+          `Ajouté : ${result.guest?.code || code || "QR créé"} · ${nom}`
+        );
         resetWaForm();
         await loadList();
       } catch (err) {
@@ -685,9 +752,13 @@
         statut,
       });
       if (!result.ok) throw new Error(result.error || "Échec");
-      msg.textContent = `Ajouté : ${result.guest.code} · ${evenementLabel(evenement)} · ${
-        statut === "confirme" ? "confirmé" : "invité"
-      }${result.guest.table ? ` · ${tableLabel(result.guest.table)}` : ""}`;
+      showAddedInvite(
+        msg,
+        result.guest,
+        `Ajouté : ${result.guest.code} · ${evenementLabel(evenement)} · ${
+          statut === "confirme" ? "confirmé" : "invité"
+        }${result.guest.table ? ` · ${tableLabel(result.guest.table)}` : ""}`
+      );
       form.reset();
       syncCount();
       syncEvenementForm();
