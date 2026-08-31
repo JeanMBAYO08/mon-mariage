@@ -340,7 +340,6 @@ def update_guest(payload: dict) -> dict:
 
 
 def invite_card_labels(guest: dict) -> tuple[str, str, str]:
-    evenement = normalize_evenement(guest.get("evenement"))
     nom = str(guest.get("nom") or "Invité").strip() or "Invité"
     type_raw = str(guest.get("type") or "").lower()
     type_label = {
@@ -349,19 +348,15 @@ def invite_card_labels(guest: dict) -> tuple[str, str, str]:
         "singleton": "Singleton",
     }.get(type_raw, str(guest.get("type") or "Invitation"))
     table_raw = str(guest.get("table") or "").strip()
-    if table_raw:
-        table = f"Table {table_raw}"
-    elif evenement == "civil":
-        table = "Cérémonie civile"
+    if not table_raw or table_raw.lower() in {"sans table", "à confirmer", "a confirmer", "-"}:
+        table = ""
     else:
-        table = "Table à confirmer"
+        table = f"Table {table_raw}"
     return nom, type_label, table
 
 
 def render_invite_card(guest: dict) -> bytes | None:
-    src = ROOT / "images" / "invitation-final.jpg"
-    if not src.exists():
-        src = ROOT / "images" / "invitation-final.png"
+    src = ROOT / "images" / "invitation-final.png"
     if not src.exists():
         src = ROOT / "images" / "invitation-carte.png"
     if not src.exists():
@@ -386,9 +381,13 @@ def render_invite_card(guest: dict) -> bytes | None:
         body_font = name_font
     cx = w / 2
     mid = panel_top + (remake_top - panel_top) // 2
-    draw.text((cx, mid - int(h * 0.038)), nom, font=name_font, fill=(255, 255, 255), anchor="mm")
-    draw.text((cx, mid), type_label, font=body_font, fill=(230, 230, 230), anchor="mm")
-    draw.text((cx, mid + int(h * 0.034)), table, font=body_font, fill=(232, 213, 163), anchor="mm")
+    if table:
+        draw.text((cx, mid - int(h * 0.038)), nom, font=name_font, fill=(255, 255, 255), anchor="mm")
+        draw.text((cx, mid), type_label, font=body_font, fill=(230, 230, 230), anchor="mm")
+        draw.text((cx, mid + int(h * 0.034)), table, font=body_font, fill=(232, 213, 163), anchor="mm")
+    else:
+        draw.text((cx, mid - int(h * 0.018)), nom, font=name_font, fill=(255, 255, 255), anchor="mm")
+        draw.text((cx, mid + int(h * 0.022)), type_label, font=body_font, fill=(230, 230, 230), anchor="mm")
     import io
 
     out = io.BytesIO()

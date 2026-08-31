@@ -1,6 +1,6 @@
 (() => {
   const INVITE_CARD_SRC =
-    "/images/invitation-final.jpg?v=20260830q";
+    "/images/invitation-final.png?v=20260831a";
 
   let baseImagePromise = null;
 
@@ -40,12 +40,6 @@
 
   async function buildGuestInviteCard(guest) {
     const api = window.AccesAPI || {};
-    const evenement =
-      typeof api.normalizeEvenement === "function"
-        ? api.normalizeEvenement(guest?.evenement)
-        : String(guest?.evenement || "").toLowerCase() === "civil"
-          ? "civil"
-          : "soiree";
     const nom = String(guest?.nom || "Invité").trim() || "Invité";
     const typeLabel = guestTypeLabel(guest);
     const tableRaw = String(guest?.table || "").trim();
@@ -53,9 +47,7 @@
       ? typeof api.tableLabel === "function"
         ? api.tableLabel(tableRaw)
         : `Table ${tableRaw}`
-      : evenement === "civil"
-        ? "Cérémonie civile"
-        : "Table à confirmer";
+      : "";
 
     if (document.fonts?.ready) {
       try {
@@ -96,8 +88,11 @@
     const maxTextW = Math.round(w * 0.88);
     const nameSize = fitText(ctx, nom, maxTextW, Math.round(42 * scale), Math.round(22 * scale));
     const typeSize = Math.round(24 * scale);
-    const tableSize = fitText(ctx, tableLabel, maxTextW, Math.round(26 * scale), Math.round(16 * scale));
-    const blockH = nameSize + typeSize + tableSize + Math.round(36 * scale);
+    const showTable = Boolean(tableLabel);
+    const tableSize = showTable
+      ? fitText(ctx, tableLabel, maxTextW, Math.round(26 * scale), Math.round(16 * scale))
+      : 0;
+    const blockH = nameSize + typeSize + tableSize + Math.round(showTable ? 36 : 22) * scale;
     let y = panelTop + Math.round((panelH - blockH) / 2) + nameSize / 2;
 
     ctx.fillStyle = "#ffffff";
@@ -109,10 +104,12 @@
     ctx.font = `500 ${typeSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
     drawCentered(ctx, typeLabel, cx, y);
 
-    y += typeSize + Math.round(16 * scale);
-    ctx.fillStyle = "#e8d5a3";
-    ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
-    drawCentered(ctx, tableLabel, cx, y);
+    if (showTable) {
+      y += typeSize + Math.round(16 * scale);
+      ctx.fillStyle = "#e8d5a3";
+      ctx.font = `500 ${tableSize}px "Josefin Sans", "Helvetica Neue", sans-serif`;
+      drawCentered(ctx, tableLabel, cx, y);
+    }
 
 
     const blob = await new Promise((resolve, reject) => {
@@ -154,20 +151,18 @@
     const first = String(guest?.nom || "invité").trim().split(/\s+/)[0] || "invité";
     const tableRaw = String(guest?.table || "").trim();
     const tableLine =
-      evenement === "civil"
-        ? "Événement : Cérémonie civile"
-        : tableRaw
-          ? `Votre place est à la ${
-              typeof api.tableLabel === "function" ? api.tableLabel(tableRaw) : `Table ${tableRaw}`
-            }`
-          : "Votre table vous sera communiquée très bientôt";
+      tableRaw
+        ? `Votre place est à la ${
+            typeof api.tableLabel === "function" ? api.tableLabel(tableRaw) : `Table ${tableRaw}`
+          }.`
+        : "";
     const qrUrl =
       typeof api.ticketUrl === "function" ? api.ticketUrl(guest?.code, evenement) : "";
 
     return (
       `Bonjour ${first},\n\n` +
       `Merci d’avoir confirmé 💛\n` +
-      `${tableLine}.\n\n` +
+      (tableLine ? `${tableLine}\n\n` : `\n`) +
       (qrUrl ? `Votre QR d’accès : ${qrUrl}\n\n` : "") +
       `On a hâte de vous retrouver.\n` +
       `Parfaite & Jean`
@@ -176,26 +171,19 @@
 
   function guestTableLabel(guest) {
     const api = window.AccesAPI || {};
-    const evenement =
-      typeof api.normalizeEvenement === "function"
-        ? api.normalizeEvenement(guest?.evenement)
-        : String(guest?.evenement || "").toLowerCase() === "civil"
-          ? "civil"
-          : "soiree";
     const tableRaw = String(guest?.table || "").trim();
-    if (tableRaw) {
-      if (typeof api.tableLabel === "function") return api.tableLabel(tableRaw);
-      return `Table ${tableRaw}`;
-    }
-    if (evenement === "civil") return "Cérémonie civile";
-    return "Table à confirmer";
+    if (!tableRaw || /^(sans table|à confirmer|a confirmer|-)$/i.test(tableRaw)) return "";
+    if (typeof api.tableLabel === "function") return api.tableLabel(tableRaw);
+    return `Table ${tableRaw}`;
   }
 
   function guestInviteLinkText(guest, imageUrl) {
     const nom = String(guest?.nom || "Invité").trim() || "Invité";
     const type = guestTypeLabel(guest);
     const table = guestTableLabel(guest);
-    return `Mariage Parfaite & Jean\n${nom}\n${type}\n${table}\n\n${imageUrl}`;
+    const lines = ["Mariage Parfaite & Jean", nom, type];
+    if (table) lines.push(table);
+    return `${lines.join("\n")}\n\n${imageUrl}`;
   }
 
   function isMobileDevice() {
